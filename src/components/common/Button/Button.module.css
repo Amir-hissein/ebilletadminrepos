@@ -1,0 +1,188 @@
+/* =========================================
+   E-BILLET - PROFESSIONAL BUTTON STYLES
+   ========================================= */
+
+.button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-sm);
+    padding: 0.625rem 1.25rem;
+    font-family: inherit;
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    border: none;
+    white-space: nowrap;
+    position: relative;
+    overflow: hidden;
+    letter-spacing: 0.01em;
+    transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+.button:hover:not(:disabled) {
+    transform: scale(1.02);
+    opacity: 0.95;
+}
+
+.button:active:not(:disabled) {
+    transform: scale(0.98);
+}
+
+.button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0) 50%);
+    pointer-events: none;
+}
+
+.button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.button:focus-visible {
+    outline: 2px solid var(--primary-400);
+    outline-offset: 2px;
+}
+
+/* =========== PRIMARY BUTTON =========== */
+.button--primary {
+    background: linear-gradient(180deg, var(--primary-500) 0%, var(--primary-600) 100%);
+    color: white;
+    box-shadow: 0 2px 4px rgba(26, 79, 110, 0.25),
+        0 1px 2px rgba(26, 79, 110, 0.15),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* =========== SECONDARY BUTTON =========== */
+.button--secondary {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    border: 1.5px solid var(--border-medium);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.button--secondary::before {
+    display: none;
+}
+
+/* =========== DANGER BUTTON =========== */
+.button--danger {
+    background: linear-gradient(180deg, var(--danger-500) 0%, var(--danger-600) 100%);
+    color: white;
+    box-shadow: 0 2px 4px rgba(239, 68, 68, 0.25),
+        0 1px 2px rgba(239, 68, 68, 0.15),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* =========== SUCCESS BUTTON =========== */
+.button--success {
+    background: linear-gradient(180deg, var(--success-500) 0%, var(--success-600) 100%);
+    color: white;
+    box-shadow: 0 2px 4px rgba(16, 185, 129, 0.25),
+        0 1px 2px rgba(16, 185, 129, 0.15),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* =========== WARNING BUTTON =========== */
+.button--warning {
+    background: linear-gradient(180deg, var(--warning-500) 0%, var(--warning-600) 100%);
+    color: white;
+    box-shadow: 0 2px 4px rgba(245, 158, 11, 0.25),
+        0 1px 2px rgba(245, 158, 11, 0.15),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* =========== GHOST BUTTON =========== */
+.button--ghost {
+    background: transparent;
+    color: var(--text-secondary);
+    box-shadow: none;
+}
+
+.button--ghost::before {
+    display: none;
+}
+
+/* =========== OUTLINE BUTTON =========== */
+.button--outline {
+    background: transparent;
+    color: var(--primary-500);
+    border: 2px solid var(--primary-500);
+    box-shadow: none;
+}
+
+.button--outline::before {
+    display: none;
+}
+
+/* =========== SIZES =========== */
+.button--sm {
+    padding: 0.375rem 0.875rem;
+    font-size: var(--font-size-xs);
+    border-radius: var(--radius-md);
+}
+
+.button--lg {
+    padding: 0.875rem 1.75rem;
+    font-size: var(--font-size-base);
+    border-radius: var(--radius-xl);
+}
+
+.button--xl {
+    padding: 1rem 2rem;
+    font-size: var(--font-size-lg);
+    border-radius: var(--radius-xl);
+}
+
+/* =========== FULL WIDTH =========== */
+.button--full {
+    width: 100%;
+}
+
+/* =========== ICON ONLY =========== */
+.button--icon {
+    padding: 0.625rem;
+    aspect-ratio: 1;
+}
+
+.button--icon.button--sm {
+    padding: 0.375rem;
+}
+
+.button--icon.button--lg {
+    padding: 0.875rem;
+}
+
+/* =========== LOADING SPINNER =========== */
+.button__spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid currentColor;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: button-spin 0.7s linear infinite;
+}
+
+@keyframes button-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* =========== DARK MODE ADJUSTMENTS =========== */
+:root.dark-mode .button--secondary {
+    background: var(--bg-tertiary);
+    border-color: var(--border-medium);
+    color: var(--text-primary);
+}
+
+:root.dark-mode .button--ghost {
+    color: var(--text-secondary);
+}

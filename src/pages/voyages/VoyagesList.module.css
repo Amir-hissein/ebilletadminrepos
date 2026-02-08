@@ -1,0 +1,399 @@
+.voyages {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+}
+
+/* Header */
+.voyages__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: var(--spacing-md);
+}
+
+.voyages__title {
+    font-size: var(--font-size-2xl);
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-xs);
+}
+
+.voyages__subtitle {
+    color: var(--text-secondary);
+    font-size: var(--font-size-sm);
+}
+
+/* Stats Bar */
+.voyages__stats {
+    display: flex;
+    gap: var(--spacing-lg);
+    padding: var(--spacing-md) var(--spacing-lg);
+    background: var(--bg-secondary);
+    border-radius: var(--radius-lg);
+    flex-wrap: wrap;
+}
+
+.voyages__stat {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.voyages__stat-value {
+    font-size: var(--font-size-lg);
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.voyages__stat-label {
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+}
+
+/* Filters */
+.voyages__filters {
+    display: flex;
+    gap: var(--spacing-md);
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.voyages__search {
+    position: relative;
+    min-width: 280px;
+}
+
+.voyages__search-input {
+    width: 100%;
+    padding: var(--spacing-sm) var(--spacing-md);
+    padding-left: 40px;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-sm);
+}
+
+.voyages__search-input:focus {
+    outline: none;
+    border-color: var(--primary-500);
+}
+
+.voyages__search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-tertiary);
+}
+
+.voyages__filter-select,
+.voyages__filter-date {
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: var(--bg-primary);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-sm);
+    cursor: pointer;
+}
+
+.voyages__filter-select {
+    padding-right: 2rem;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 0.5rem center;
+    background-repeat: no-repeat;
+    background-size: 1.25em 1.25em;
+}
+
+/* Table */
+.voyages__table-container {
+    background: var(--bg-primary);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-light);
+    overflow: hidden;
+}
+
+.voyages__table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.voyages__table th {
+    text-align: left;
+    padding: var(--spacing-md) var(--spacing-lg);
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-light);
+}
+
+.voyages__table td {
+    padding: var(--spacing-md) var(--spacing-lg);
+    font-size: var(--font-size-sm);
+    color: var(--text-primary);
+    border-bottom: 1px solid var(--border-light);
+}
+
+.voyages__table tr:last-child td {
+    border-bottom: none;
+}
+
+.voyages__table tr:hover td {
+    background: var(--bg-secondary);
+}
+
+/* Route Cell */
+.voyages__route {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.voyages__route-arrow {
+    color: var(--primary-500);
+}
+
+.voyages__route-ville {
+    font-weight: 500;
+}
+
+/* Transport Type Badge */
+.voyages__transport {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-xs);
+    font-weight: 500;
+}
+
+.voyages__transport--bus {
+    background: var(--primary-50);
+    color: var(--primary-600);
+}
+
+.voyages__transport--avion {
+    background: var(--warning-50);
+    color: var(--warning-600);
+}
+
+/* Date & Time */
+.voyages__datetime {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.voyages__date {
+    font-weight: 500;
+}
+
+.voyages__time {
+    font-size: var(--font-size-xs);
+    color: var(--text-tertiary);
+}
+
+/* Places */
+.voyages__places {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.voyages__places-text {
+    font-weight: 500;
+}
+
+.voyages__places-bar {
+    width: 80px;
+    height: 6px;
+    background: var(--bg-tertiary);
+    border-radius: var(--radius-full);
+    overflow: hidden;
+}
+
+.voyages__places-fill {
+    height: 100%;
+    border-radius: var(--radius-full);
+    transition: width 0.3s ease;
+}
+
+.voyages__places-fill--high {
+    background: var(--success-500);
+}
+
+.voyages__places-fill--medium {
+    background: var(--warning-500);
+}
+
+.voyages__places-fill--low {
+    background: var(--danger-500);
+}
+
+/* Price */
+.voyages__price {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+/* Agency */
+.voyages__agence {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+}
+
+/* Actions */
+.voyages__actions {
+    display: flex;
+    gap: var(--spacing-xs);
+}
+
+.voyages__action-btn {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-md);
+    color: var(--text-secondary);
+    transition: all var(--transition-fast);
+    cursor: pointer;
+    background: transparent;
+    border: none;
+}
+
+.voyages__action-btn:hover {
+    background: var(--bg-tertiary);
+    color: var(--primary-500);
+}
+
+/* Empty State */
+.voyages__empty {
+    text-align: center;
+    padding: var(--spacing-2xl);
+    color: var(--text-secondary);
+}
+
+.voyages__empty-icon {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto var(--spacing-md);
+    background: var(--bg-tertiary);
+    border-radius: var(--radius-full);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-tertiary);
+}
+
+/* Loading */
+.voyages__loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-2xl);
+    color: var(--text-secondary);
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+
+    /* Table Responsive and Text Truncation */
+    .voyages__table-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .voyages__table {
+        min-width: 900px;
+    }
+
+    .voyages__route-ville {
+        max-width: 120px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .voyages__table {
+        min-width: 900px;
+    }
+}
+
+@media (max-width: 768px) {
+    .voyages__header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1rem;
+    }
+
+    .voyages__title {
+        text-align: center;
+    }
+
+    .voyages__subtitle {
+        text-align: center;
+        display: block;
+    }
+
+    .voyages__filters {
+        flex-direction: column;
+        width: 100%;
+        gap: 1rem;
+    }
+
+    .voyages__search {
+        width: 100%;
+        min-width: unset;
+    }
+
+    .voyages__filter-select,
+    .voyages__filter-date {
+        width: 100%;
+    }
+
+    .voyages__stats {
+        padding: 1rem;
+        flex-direction: column;
+        gap: 1rem;
+        height: auto;
+    }
+
+    .voyages__stat {
+        width: 100%;
+        justify-content: space-between;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid var(--border-light);
+    }
+
+    .voyages__stat:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+}
+
+@media (max-width: 480px) {
+    .voyages__header {
+        padding-bottom: 1rem;
+    }
+
+    .voyages__route {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.25rem;
+    }
+
+    .voyages__route-arrow {
+        transform: rotate(90deg);
+        margin-left: 0.5rem;
+    }
+}

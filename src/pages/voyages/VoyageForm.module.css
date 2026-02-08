@@ -1,0 +1,237 @@
+.voyage-form {
+    max-width: 800px;
+}
+
+.voyage-form__header {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-xl);
+}
+
+.voyage-form__title {
+    font-size: var(--font-size-2xl);
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+/* Form Sections */
+.voyage-form__section {
+    margin-bottom: var(--spacing-xl);
+}
+
+.voyage-form__section-title {
+    display: flex;
+    align-items: center;
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-md);
+    padding-bottom: var(--spacing-sm);
+    border-bottom: 1px solid var(--border-light);
+}
+
+.voyage-form__row {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-md);
+}
+
+.voyage-form__row--three {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.voyage-form__row--full {
+    grid-template-columns: 1fr;
+}
+
+/* Form Fields */
+.voyage-form__field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+.voyage-form__label {
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+.voyage-form__label--required::after {
+    content: ' *';
+    color: var(--danger-500);
+}
+
+.voyage-form__input,
+.voyage-form__select,
+.voyage-form__textarea {
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: var(--bg-primary);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-sm);
+    transition: border-color var(--transition-fast);
+}
+
+.voyage-form__input:focus,
+.voyage-form__select:focus,
+.voyage-form__textarea:focus {
+    outline: none;
+    border-color: var(--primary-500);
+}
+
+.voyage-form__input--error,
+.voyage-form__select--error {
+    border-color: var(--danger-500);
+}
+
+.voyage-form__textarea {
+    min-height: 80px;
+    resize: vertical;
+}
+
+.voyage-form__error {
+    font-size: var(--font-size-xs);
+    color: var(--danger-500);
+}
+
+.voyage-form__hint {
+    font-size: var(--font-size-xs);
+    color: var(--text-tertiary);
+}
+
+/* Route Selector */
+.voyage-form__route {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    padding: var(--spacing-lg);
+    background: var(--bg-secondary);
+    border-radius: var(--radius-lg);
+    margin-bottom: var(--spacing-md);
+}
+
+.voyage-form__route-field {
+    flex: 1;
+}
+
+.voyage-form__route-arrow {
+    color: var(--primary-500);
+    flex-shrink: 0;
+}
+
+/* Transport Type Cards */
+.voyage-form__transport-options {
+    display: flex;
+    gap: var(--spacing-md);
+}
+
+.voyage-form__transport-card {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-lg);
+    background: var(--bg-primary);
+    border: 2px solid var(--border-light);
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.voyage-form__transport-card:hover {
+    border-color: var(--primary-300);
+    background: var(--primary-50);
+}
+
+.voyage-form__transport-card--selected {
+    border-color: var(--primary-500);
+    background: var(--primary-50);
+}
+
+.voyage-form__transport-icon {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-full);
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+}
+
+.voyage-form__transport-card--selected .voyage-form__transport-icon {
+    background: var(--primary-500);
+    color: white;
+}
+
+.voyage-form__transport-name {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+/* Price Summary */
+.voyage-form__summary {
+    background: var(--success-50);
+    border: 1px solid var(--success-200);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    margin-top: var(--spacing-md);
+}
+
+.voyage-form__summary-title {
+    font-weight: 600;
+    color: var(--success-700);
+    margin-bottom: var(--spacing-sm);
+}
+
+.voyage-form__summary-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: var(--font-size-sm);
+    color: var(--success-600);
+    margin-bottom: var(--spacing-xs);
+}
+
+.voyage-form__summary-total {
+    font-weight: 700;
+    font-size: var(--font-size-lg);
+    color: var(--success-700);
+    border-top: 1px solid var(--success-200);
+    padding-top: var(--spacing-sm);
+    margin-top: var(--spacing-sm);
+}
+
+/* Actions */
+.voyage-form__actions {
+    display: flex;
+    gap: var(--spacing-md);
+    justify-content: flex-end;
+    padding-top: var(--spacing-xl);
+    border-top: 1px solid var(--border-light);
+    margin-top: var(--spacing-xl);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+
+    .voyage-form__row,
+    .voyage-form__row--three {
+        grid-template-columns: 1fr;
+    }
+
+    .voyage-form__route {
+        flex-direction: column;
+    }
+
+    .voyage-form__transport-options {
+        flex-direction: column;
+    }
+
+    .voyage-form__actions {
+        flex-direction: column-reverse;
+    }
+}

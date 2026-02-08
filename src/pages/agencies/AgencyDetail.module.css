@@ -1,0 +1,443 @@
+/* =========================================
+   E-BILLET - PROFESSIONAL AGENCY DETAIL STYLES
+   ========================================= */
+
+.agency-detail {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xl);
+}
+
+/* =========== HEADER =========== */
+.agency-detail__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--spacing-lg);
+    background: linear-gradient(135deg, var(--primary-500) 0%, var(--primary-600) 50%, var(--primary-700) 100%);
+    border-radius: var(--radius-xl);
+    padding: 2rem;
+    color: white;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(26, 79, 110, 0.25);
+}
+
+.agency-detail__header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 300px;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, transparent 100%);
+    border-radius: 0 0 0 100%;
+}
+
+.agency-detail__info {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    position: relative;
+    z-index: 1;
+}
+
+.agency-detail__avatar {
+    width: 72px;
+    height: 72px;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: var(--radius-xl);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.agency-detail__title h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 0.5rem;
+}
+
+.agency-detail__meta {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 0.875rem;
+}
+
+.agency-detail__location {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.agency-detail__actions {
+    display: flex;
+    gap: 0.75rem;
+    position: relative;
+    z-index: 1;
+}
+
+.agency-detail__back-btn {
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    padding: 0.625rem 1rem;
+    border-radius: var(--radius-lg);
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: background 0.15s ease;
+}
+
+.agency-detail__back-btn:hover {
+    background: rgba(255, 255, 255, 0.25);
+}
+
+.agency-detail__edit-btn {
+    background: white;
+    color: var(--primary-600);
+    border: none;
+    padding: 0.625rem 1.25rem;
+    border-radius: var(--radius-lg);
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.agency-detail__edit-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* =========== STATS GRID =========== */
+.agency-detail__stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+}
+
+.agency-detail__stat-card {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-xl);
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.agency-detail__stat-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 4px;
+    border-radius: 4px 0 0 4px;
+}
+
+.agency-detail__stat-card--primary::after {
+    background: var(--primary-500);
+}
+
+.agency-detail__stat-card--success::after {
+    background: var(--success-500);
+}
+
+.agency-detail__stat-card--warning::after {
+    background: var(--warning-500);
+}
+
+.agency-detail__stat-card--danger::after {
+    background: var(--danger-500);
+}
+
+.agency-detail__stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius-lg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+}
+
+.agency-detail__stat-icon--primary {
+    background: linear-gradient(135deg, var(--primary-50) 0%, var(--primary-100) 100%);
+    color: var(--primary-500);
+}
+
+.agency-detail__stat-icon--success {
+    background: linear-gradient(135deg, var(--success-50) 0%, var(--success-100) 100%);
+    color: var(--success-500);
+}
+
+.agency-detail__stat-icon--warning {
+    background: linear-gradient(135deg, var(--warning-50) 0%, var(--warning-100) 100%);
+    color: var(--warning-500);
+}
+
+.agency-detail__stat-icon--danger {
+    background: linear-gradient(135deg, var(--danger-50) 0%, var(--danger-100) 100%);
+    color: var(--danger-500);
+}
+
+.agency-detail__stat-value {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+    line-height: 1.2;
+}
+
+.agency-detail__stat-label {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* =========== CONTENT GRID =========== */
+.agency-detail__content {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 1.5rem;
+}
+
+/* =========== INFO CARD =========== */
+.agency-detail__card {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-xl);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    overflow: hidden;
+}
+
+.agency-detail__card-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--border-light);
+    background: var(--bg-secondary);
+}
+
+.agency-detail__card-header-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--primary-50);
+    color: var(--primary-500);
+}
+
+.agency-detail__card-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.agency-detail__card-body {
+    padding: 1.5rem;
+}
+
+/* =========== INFO SECTIONS =========== */
+.agency-detail__section {
+    margin-bottom: 1.75rem;
+    padding-bottom: 1.75rem;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.agency-detail__section:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.agency-detail__section-title {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.agency-detail__section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border-light);
+}
+
+.agency-detail__info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
+}
+
+.agency-detail__info-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+}
+
+.agency-detail__info-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-md);
+    background: var(--primary-50);
+    color: var(--primary-500);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.agency-detail__info-label {
+    display: block;
+    font-size: 0.7rem;
+    color: var(--text-tertiary);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 0.125rem;
+}
+
+.agency-detail__info-value {
+    display: block;
+    font-size: 0.9375rem;
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.agency-detail__info-value a {
+    color: var(--primary-500);
+    text-decoration: none;
+    transition: color 0.15s ease;
+}
+
+.agency-detail__info-value a:hover {
+    color: var(--primary-600);
+    text-decoration: underline;
+}
+
+/* =========== ACTIONS CARD =========== */
+.agency-detail__actions-card {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-xl);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    overflow: hidden;
+}
+
+.agency-detail__status-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+/* =========== LOADING STATE =========== */
+.agency-detail__loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 400px;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+/* =========== RESPONSIVE =========== */
+@media (max-width: 1024px) {
+    .agency-detail__stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .agency-detail__content {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .agency-detail__header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1.5rem;
+        padding: 1.5rem;
+    }
+
+    .agency-detail__info {
+        flex-direction: column;
+        text-align: center;
+        width: 100%;
+    }
+
+    .agency-detail__meta {
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .agency-detail__actions {
+        width: 100%;
+        flex-direction: column;
+    }
+
+    .agency-detail__back-btn,
+    .agency-detail__edit-btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .agency-detail__info-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .agency-detail__stats {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* =========== DARK MODE =========== */
+:root.dark-mode .agency-detail__header {
+    background: linear-gradient(135deg, var(--primary-600) 0%, var(--primary-700) 100%);
+}
+
+:root.dark-mode .agency-detail__stat-card,
+:root.dark-mode .agency-detail__card,
+:root.dark-mode .agency-detail__actions-card {
+    background: var(--bg-secondary);
+    border-color: var(--border-medium);
+}
+
+:root.dark-mode .agency-detail__card-header {
+    background: var(--bg-tertiary);
+}

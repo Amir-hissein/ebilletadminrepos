@@ -1,0 +1,217 @@
+.reservationDetail {
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+/* Header */
+.reservationDetail__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: var(--spacing-xl);
+}
+
+.reservationDetail__title-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+.reservationDetail__back-link {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    color: var(--text-secondary);
+    font-size: var(--font-size-sm);
+    text-decoration: none;
+    margin-bottom: var(--spacing-xs);
+    transition: color var(--transition-fast);
+}
+
+.reservationDetail__back-link:hover {
+    color: var(--primary-600);
+}
+
+.reservationDetail__title {
+    font-size: var(--font-size-2xl);
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.reservationDetail__actions {
+    display: flex;
+    gap: var(--spacing-sm);
+}
+
+/* Content Grid */
+.reservationDetail__grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: var(--spacing-xl);
+}
+
+/* Base Card */
+.reservationDetail__card {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+}
+
+.reservationDetail__card-header {
+    padding: var(--spacing-lg);
+    border-bottom: 1px solid var(--border-light);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.reservationDetail__card-icon {
+    width: 32px;
+    height: 32px;
+    background: var(--primary-100);
+    color: var(--primary-600);
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.reservationDetail__card-title {
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.reservationDetail__card-content {
+    padding: var(--spacing-lg);
+}
+
+/* Main Info List */
+.reservationDetail__info-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+}
+
+.reservationDetail__info-row {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-lg);
+}
+
+.reservationDetail__info-item {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+.reservationDetail__label {
+    font-size: var(--font-size-xs);
+    font-weight: 500;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    letter-spacing: 0.05em;
+}
+
+.reservationDetail__value {
+    font-size: var(--font-size-md);
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.reservationDetail__value--large {
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+}
+
+/* QR Code Section */
+.reservationDetail__qr-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: var(--spacing-md);
+    padding: var(--spacing-xl);
+    background: linear-gradient(135deg, var(--bg-primary) 0%, var(--gray-50) 100%);
+}
+
+.reservationDetail__qr-wrapper {
+    padding: var(--spacing-md);
+    background: white;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border-light);
+}
+
+.reservationDetail__qr-code {
+    display: block;
+    margin: 0 auto;
+}
+
+.reservationDetail__qr-label {
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+    margin-top: var(--spacing-sm);
+}
+
+.reservationDetail__code {
+    font-family: monospace;
+    font-size: var(--font-size-xl);
+    font-weight: 700;
+    color: var(--primary-700);
+    letter-spacing: 0.1em;
+    padding: var(--spacing-xs) var(--spacing-md);
+    background: var(--primary-50);
+    border-radius: var(--radius-md);
+    margin-top: var(--spacing-sm);
+}
+
+/* Status Badges */
+.reservationDetail__status {
+    width: fit-content;
+    padding: 4px 12px;
+    border-radius: var(--radius-full);
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.reservationDetail__status--confirmed {
+    background: var(--success-100);
+    color: var(--success-700);
+}
+
+.reservationDetail__status--pending {
+    background: var(--warning-100);
+    color: var(--warning-700);
+}
+
+.reservationDetail__status--cancelled {
+    background: var(--danger-100);
+    color: var(--danger-700);
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+    .reservationDetail__grid {
+        grid-template-columns: 1fr;
+    }
+
+    .reservationDetail__header {
+        flex-direction: column;
+        gap: var(--spacing-md);
+    }
+
+    .reservationDetail__actions {
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    .reservationDetail__qrcode {
+        order: -1;
+        /* Show QR top on mobile */
+    }
+}

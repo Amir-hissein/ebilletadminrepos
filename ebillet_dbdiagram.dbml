@@ -1,0 +1,381 @@
+// ============================================
+// SCHÉMA DBML POUR E-BILLET TCHAD
+// À utiliser sur dbdiagram.io
+// ============================================
+
+// GESTION DES RÔLES
+Table roles {
+  id integer [primary key, increment]
+  nom varchar(50) [unique, not null, note: 'Super Admin, Sous Admin, etc.']
+  description text
+  niveau_acces integer [not null, note: '1=SuperAdmin, 2=SousAdmin, 3=AdminAgence, 4=Agent']
+  created_at timestamp [default: `CURRENT_TIMESTAMP`]
+  updated_at timestamp [default: `CURRENT_TIMESTAMP`]
+}
+
+// UTILISATEURS (TOUS TYPES)
+Table utilisateurs {
+  id integer [primary key, increment]
+  nom varchar(100) [not null]
+  prenom varchar(100) [not null]
+  email varchar(150) [unique, not null]
+  telephone varchar(20) [unique, not null]
+  mot_de_passe varchar(255) [not null]
+  role_id integer [not null, ref: > roles.id]
+  agence_id integer [null, ref: > agences.id, note: 'NULL pour Super Admin et Sous-Admins']
+  statut varchar(20) [default: 'actif', note: 'actif, suspendu, inactif']
+  photo_profil varchar(255)
+  derniere_connexion timestamp
+  created_by integer [ref: > utilisateurs.id, note: 'Utilisateur créateur']
+  created_at timestamp [default: `CURRENT_TIMESTAMP`]
+  updated_at timestamp [default: `CURRENT_TIMESTAMP`]
+  
+  Indexes {
+    role_id
+    agence_id
+    statut
+  }
+}
+
+// TYPES DE SOUS-ADMINS
+Table types_sous_admin {
+  id integer [primary key, increment]
+  code varchar(20) [unique, not null, note: 'AGENCES, FINANCE, OPERATIONS, SUPPORT']
+  libelle varchar(100) [not null]
+  description text
+  created_at timestamp [default: `CURRENT_TIMESTAMP`]
+}
+
+// LIAISON UTILISATEUR - TYPE SOUS-ADMIN
+Table utilisateur_sous_admin {
+  id integer [primary key, increment]
+  utilisateur_id integer [not null, ref: > utilisateurs.id]
+  type_sous_admin_id integer [not null, ref: > types_sous_admin.id]
+  date_attribution timestamp [default: `CURRENT_TIMESTAMP`]
+  
+  Indexes {
+    (utilisateur_id, type_sous_admin_id) [unique, name: 'unique_user_type']
+  }
+}
+
+// AGENCES DE VOYAGE
+Table agences {
+  id integer [primary key, increment]
+  nom varchar(150) [not null]
+  type_service varchar(20) [not null, note: 'bus, avion, mixte']
+  adresse text [not null]
+  ville varchar(100) [not null]
+  telephone varchar(20) [not null]
+  email varchar(150)
+  numero_licence varchar(50) [unique]
+  logo varchar(255)
+  statut varchar(20) [default: 'active', note: 'active, suspendue, fermee']
+  commission_pourcentage decimal(5,2) [default: 10.00, note: 'Commission plateforme %']
+  created_by integer [not null, ref: > utilisateurs.id]
+  validated_by integer [ref: > utilisateurs.id, note: 'Super Admin validateur']
+  validated_at timestamp
+  created_at timestamp [default: `CURRENT_TIMESTAMP`]
+  updated_at timestamp [default: `CURRENT_TIMESTAMP`]
+  
+  Indexes {
+    type_service
+    statut
+    ville
+    nom [type: btree, name: 'idx_agence_nom']
+  }
+}
+
+// VILLES
+Table villes {
+  id integer [primary key, increment]
+  nom varchar(100) [unique, not null]
+  pays varchar(100) [default: 'Tchad']
+  code varchar(10)
+  actif boolean [default: true]
+  created_at timestamp [default: `CURRENT_TIMESTAMP`]
+}
+
+// VOYAGES
+Table voyages {
+  id integer [primary key, increment]
+  agence_id integer [not null, ref: > agences.id]
+  ville_depart_id integer [not null, ref: > villes.id]
+  ville_arrivee_id integer [not null, ref: > villes.id]
+  date_depart date [not null]
+  heure_depart time [not null]
+  date_arrivee date
+  heure_arrivee time
+  prix_unitaire decimal(10,2) [not null]
+  places_totales integer [not null]
+  places_disponibles integer [not null]
+  type_transport varchar(20) [not null, note: 'bus, avion']
+  numero_vol_bus varchar(50)
+  statut varchar(20) [default: 'planifie', note: 'planifie, en_cours, termine, annule']
+  description text
+  created_by integer [not null, ref: > utilisateurs.id]
+  validated_by integer [ref: > utilisateurs.id]
+  validated_at timestamp
+  created_at timestamp [default: `CURRENT_TIMESTAMP`]
+  updated_at timestamp [default: `CURRENT_TIMESTAMP`]
+  
+  Indexes {
+    agence_id
+    (ville_depart_id, date_depart) [name: 'idx_depart']
+    ville_arrivee_id
+    statut
+    type_transport
+    (date_depart, statut) [name: 'idx_voyage_date_statut']
+  }
+}
+
+// CLIENTS
+Table clients {
+  id integer [primary key, increment]
+  nom varchar(100) [not null]
+  prenom varchar(100) [not null]
+  telephone varchar(20) [not null]
+  email varchar(150)
+  numero_piece varchar(50)
+  type_piece varchar(20) [note: 'CNI, passeport, autre']
+  created_at timestamp [default: `CURRENT_TIMESTAMP`]
+  updated_at timestamp [default: `CURRENT_TIMESTAMP`]
+  
+  Indexes {
+    telephone
+    email
+  }
+}
+
+// RÉSERVATIONS
+Table reservations {
+  id integer [primary key, increment]
+  numero_reservation varchar(20) [unique, not null, note: 'Ex: RES2026123456']
+  voyage_id integer [not null, ref: > voyages.id]
+  client_id integer [not null, ref: > clients.id]
+  agence_id integer [not null, ref: > agences.id]
+  agent_id integer [not null, ref: > utilisateurs.id, note: 'Agent vendeur']
+  nombre_places integer [not null, default: 1]
+  prix_total decimal(10,2) [not null]
+  commission_plateforme decimal(10,2) [not null, note: 'Revenu plateforme']
+  montant_agence decimal(10,2) [not null, note: 'Revenu agence']
+  statut_paiement varchar(20) [default: 'en_attente', note: 'en_attente, paye, rembourse']
+  mode_paiement varchar(20) [note: 'especes, mobile_money, carte, virement']
+  statut_reservation varchar(20) [default: 'confirmee', note: 'confirmee, annulee, utilisee']
+  qr_code varchar(255) [note: 'Chemin du QR code']
+  date_paiement timestamp
+  date_annulation timestamp
+  motif_annulation text
+  created_at timestamp [default: `CURRENT_TIMESTAMP`]
+  updated_at timestamp [default: `CURRENT_TIMESTAMP`]
+  
+  Indexes {
+    numero_reservation
+    voyage_id
+    client_id
+    agence_id
+    statut_reservation
+    (created_at, statut_reservation) [name: 'idx_reservation_dates']
+  }
+}
+
+// ACTIONS CRITIQUES (Validation Super Admin)
+Table actions_critiques {
+  id integer [primary key, increment]
+  type_action varchar(50) [not null, note: 'bloquer_agence, supprimer_agence, modifier_commission, etc.']
+  entite_type varchar(50) [not null, note: 'agence, voyage, reservation, utilisateur']
+  entite_id integer [not null]
+  demandeur_id integer [not null, ref: > utilisateurs.id, note: 'Sous-admin demandeur']
+  validateur_id integer [ref: > utilisateurs.id, note: 'Super Admin validateur']
+  statut varchar(20) [default: 'en_attente', note: 'en_attente, validee, rejetee']
+  description text [not null]
+  donnees_action json [note: 'Données spécifiques JSON']
+  motif_rejet text
+  date_demande timestamp [default: `CURRENT_TIMESTAMP`]
+  date_traitement timestamp
+  
+  Indexes {
+    statut
+    type_action
+    demandeur_id
+  }
+}
+
+// TRANSACTIONS FINANCIÈRES
+Table transactions {
+  id integer [primary key, increment]
+  reservation_id integer [not null, ref: > reservations.id]
+  type_transaction varchar(20) [not null, note: 'paiement, remboursement, commission']
+  montant decimal(10,2) [not null]
+  beneficiaire_type varchar(20) [not null, note: 'plateforme, agence, client']
+  beneficiaire_id integer [note: 'ID agence ou client selon type']
+  statut varchar(20) [default: 'completee', note: 'en_attente, completee, echouee']
+  reference_paiement varchar(100)
+  created_at timestamp [default: `CURRENT_TIMESTAMP`]
+  
+  Indexes {
+    reservation_id
+    type_transaction
+    (beneficiaire_type, beneficiaire_id) [name: 'idx_beneficiaire']
+  }
+}
+
+// PLAINTES ET LITIGES
+Table plaintes {
+  id integer [primary key, increment]
+  reservation_id integer [ref: > reservations.id]
+  client_id integer [not null, ref: > clients.id]
+  agence_id integer [ref: > agences.id]
+  type_plainte varchar(20) [not null, note: 'service, paiement, annulation, retard, autre']
+  description text [not null]
+  statut varchar(20) [default: 'ouverte', note: 'ouverte, en_traitement, resolue, fermee']
+  priorite varchar(20) [default: 'moyenne', note: 'basse, moyenne, haute']
+  assigne_a integer [ref: > utilisateurs.id, note: 'Admin Support assigné']
+  validated_by integer [ref: > utilisateurs.id, note: 'Super Admin si critique']
+  resolution text
+  date_resolution timestamp
+  created_at timestamp [default: `CURRENT_TIMESTAMP`]
+  updated_at timestamp [default: `CURRENT_TIMESTAMP`]
+  
+  Indexes {
+    statut
+    client_id
+    agence_id
+  }
+}
+
+// LOGS D'ACTIVITÉ
+Table logs_activite {
+  id integer [primary key, increment]
+  utilisateur_id integer [ref: > utilisateurs.id]
+  action varchar(100) [not null, note: 'CREATION_UTILISATEUR, VENTE_BILLET, etc.']
+  entite_type varchar(50) [note: 'utilisateur, reservation, voyage, etc.']
+  entite_id integer
+  details json [note: 'Détails JSON de l\'action']
+  ip_address varchar(45)
+  user_agent text
+  created_at timestamp [default: `CURRENT_TIMESTAMP`]
+  
+  Indexes {
+    utilisateur_id
+    created_at
+    action
+  }
+}
+
+// NOTIFICATIONS
+Table notifications {
+  id integer [primary key, increment]
+  destinataire_id integer [not null, ref: > utilisateurs.id]
+  type_notification varchar(50) [not null]
+  titre varchar(200) [not null]
+  message text [not null]
+  lue boolean [default: false]
+  lien varchar(255)
+  created_at timestamp [default: `CURRENT_TIMESTAMP`]
+  
+  Indexes {
+    destinataire_id
+    lue
+  }
+}
+
+// SESSIONS UTILISATEURS
+Table sessions {
+  id integer [primary key, increment]
+  utilisateur_id integer [not null, ref: > utilisateurs.id]
+  token varchar(255) [unique, not null]
+  ip_address varchar(45)
+  user_agent text
+  expires_at timestamp [not null]
+  created_at timestamp [default: `CURRENT_TIMESTAMP`]
+  
+  Indexes {
+    token
+    utilisateur_id
+  }
+}
+
+// ============================================
+// RELATIONS SUPPLÉMENTAIRES
+// ============================================
+
+// Relations hiérarchiques - Rôle de l'utilisateur
+Ref: utilisateurs.role_id > roles.id
+
+// Agence d'appartenance
+Ref: utilisateurs.agence_id > agences.id
+
+// Créateur de l'utilisateur (auto-référence)
+Ref: utilisateurs.created_by > utilisateurs.id
+
+// Gestion des agences - Créateur de l'agence
+Ref: agences.created_by > utilisateurs.id
+
+// Validateur Super Admin
+Ref: agences.validated_by > utilisateurs.id
+
+// Gestion des voyages - Agence organisatrice
+Ref: voyages.agence_id > agences.id
+
+// Ville de départ
+Ref: voyages.ville_depart_id > villes.id
+
+// Ville d'arrivée
+Ref: voyages.ville_arrivee_id > villes.id
+
+// Créateur du voyage
+Ref: voyages.created_by > utilisateurs.id
+
+// Validateur si nécessaire
+Ref: voyages.validated_by > utilisateurs.id
+
+// Gestion des réservations - Voyage réservé
+Ref: reservations.voyage_id > voyages.id
+
+// Client réservant
+Ref: reservations.client_id > clients.id
+
+// Agence gérant la réservation
+Ref: reservations.agence_id > agences.id
+
+// Agent vendeur
+Ref: reservations.agent_id > utilisateurs.id
+
+// Système de validation - Sous-admin demandeur
+Ref: actions_critiques.demandeur_id > utilisateurs.id
+
+// Super Admin validateur
+Ref: actions_critiques.validateur_id > utilisateurs.id
+
+// Finances - Transaction liée à réservation
+Ref: transactions.reservation_id > reservations.id
+
+// Support - Plainte sur réservation
+Ref: plaintes.reservation_id > reservations.id
+
+// Client plaignant
+Ref: plaintes.client_id > clients.id
+
+// Agence concernée
+Ref: plaintes.agence_id > agences.id
+
+// Admin Support assigné
+Ref: plaintes.assigne_a > utilisateurs.id
+
+// Super Admin validateur
+Ref: plaintes.validated_by > utilisateurs.id
+
+// Traçabilité - Auteur de l'action
+Ref: logs_activite.utilisateur_id > utilisateurs.id
+
+// Destinataire notification
+Ref: notifications.destinataire_id > utilisateurs.id
+
+// Session utilisateur
+Ref: sessions.utilisateur_id > utilisateurs.id
+
+// Sous-admins - Sous-admin
+Ref: utilisateur_sous_admin.utilisateur_id > utilisateurs.id
+
+// Type spécialité
+Ref: utilisateur_sous_admin.type_sous_admin_id > types_sous_admin.id

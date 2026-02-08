@@ -1,0 +1,457 @@
+/* Finance Dashboard Grid */
+.dashboardGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+/* Stat Cards */
+.statCard {
+    background: white;
+    padding: 1.5rem;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    transition: transform 0.2s, box-shadow 0.2s;
+    border: 1px solid var(--border-color);
+    position: relative;
+    overflow: hidden;
+}
+
+.statCard.blueGradient {
+    background: linear-gradient(135deg, #eff6ff 0%, #ffffff 100%);
+}
+
+.statCard.greenGradient {
+    background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%);
+}
+
+.statCard:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.statCardContent {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.statIconWrapper {
+    padding: 0.75rem;
+    border-radius: 9999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.statIconWrapper.blue {
+    background-color: #dbeafe;
+    color: #2563eb;
+}
+
+.statIconWrapper.green {
+    background-color: #dcfce7;
+    color: #16a34a;
+}
+
+.statLabel {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.statValue {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-top: 0.25rem;
+}
+
+/* Charts */
+.chartContainer {
+    background: white;
+    padding: 1.5rem;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    height: 400px;
+    margin-bottom: 2rem;
+    border: 1px solid var(--border-color);
+}
+
+.chartTitle {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 1.5rem;
+}
+
+/* Headers */
+.transactionsHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+/* Status Badges */
+.statusCompleted {
+    color: var(--success);
+    background: rgba(16, 185, 129, 0.1);
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+}
+
+.statusPending {
+    color: var(--warning);
+    background: rgba(245, 158, 11, 0.1);
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+}
+
+/* Colors */
+.amountPositive {
+    color: var(--success);
+    font-weight: 600;
+}
+
+.amountNeutral {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+/* Commissions Page Specifics */
+.commissionNote {
+    margin-top: 1.5rem;
+    padding: 1rem 1.5rem;
+    background: #eff6ff;
+    border-left: 4px solid #3b82f6;
+    color: #1e40af;
+    border-radius: 0.5rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    font-size: 0.875rem;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.commissionNoteIcon {
+    color: #3b82f6;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.commissionNoteTitle {
+    font-weight: 600;
+    color: #1e3a8a;
+    margin-bottom: 0.25rem;
+    display: block;
+}
+
+.editContainer {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: #f8fafc;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.375rem;
+    border: 1px solid #e2e8f0;
+}
+
+.editInput {
+    background: transparent;
+    border: none;
+    font-weight: 600;
+    color: var(--text-primary);
+    width: 60px;
+    text-align: right;
+    outline: none;
+    font-size: 1rem;
+}
+
+.editContainer:focus-within {
+    border-color: var(--primary-500);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+.tableContainer {
+    background: white;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+}
+
+.tableHeader {
+    background-color: #f9fafb;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.tableHeaderCell {
+    padding: 1rem 1.5rem;
+    text-align: left;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    letter-spacing: 0.05em;
+}
+
+.tableRow {
+    border-bottom: 1px solid var(--border-color);
+    transition: background-color 0.15s ease;
+}
+
+.tableRow:last-child {
+    border-bottom: none;
+}
+
+.tableRow:hover {
+    background-color: #f9fafb;
+}
+
+.tableCell {
+    padding: 1rem 1.5rem;
+    font-size: 0.875rem;
+    color: var(--text-primary);
+    vertical-align: middle;
+}
+
+.agencyName {
+    font-weight: 600;
+    color: var(--text-primary);
+    display: block;
+}
+
+.agencyEmail {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    font-weight: 400;
+    margin-top: 0.125rem;
+}
+
+.serviceBadge {
+    display: inline-flex;
+    padding: 0.25rem 0.625rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.serviceBadgeBus {
+    background-color: #f3e8ff;
+    color: #7e22ce;
+}
+
+.serviceBadgePlane {
+    background-color: #ffedd5;
+    color: #c2410c;
+}
+
+.rateHigh {
+    color: #16a34a;
+}
+
+.rateLow {
+    color: #dc2626;
+}
+
+.rateNormal {
+    color: var(--text-primary);
+}
+
+.actionButtons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+}
+
+.btnSave {
+    padding: 0.375rem;
+    border-radius: 0.375rem;
+    background-color: #f0fdf4;
+    color: #16a34a;
+    transition: all 0.2s;
+    border: 1px solid transparent;
+}
+
+.btnSave:hover {
+    background-color: #dcfce7;
+    border-color: #bbf7d0;
+}
+
+.btnCancel {
+    padding: 0.375rem 0.75rem;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    transition: color 0.2s;
+}
+
+.btnCancel:hover {
+    color: var(--text-primary);
+}
+
+/* Transactions Filter Bar */
+.filterCard {
+    background: white;
+    padding: 1.25rem;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 1.5rem;
+    border: 1px solid var(--border-color);
+}
+
+.filterControls {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.searchInputContainer {
+    position: relative;
+    flex: 1;
+}
+
+.searchIcon {
+    position: absolute;
+    left: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-secondary);
+    pointer-events: none;
+}
+
+.searchInput {
+    width: 100%;
+    padding: 0.625rem 1rem 0.625rem 2.5rem;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+    font-size: 0.875rem;
+    transition: all 0.2s;
+}
+
+.searchInput:focus {
+    outline: none;
+    border-color: var(--primary-500);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.filterSelect {
+    padding: 0.625rem 2rem 0.625rem 1rem;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+    font-size: 0.875rem;
+    background-color: white;
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 0.5rem center;
+    background-repeat: no-repeat;
+    background-size: 1.5em 1.5em;
+    appearance: none;
+}
+
+.filterSelect:focus {
+    outline: none;
+    border-color: var(--primary-500);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.reference {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.875rem;
+    color: var(--text-primary);
+}
+
+.reservationLink {
+    color: var(--primary-600);
+    font-weight: 500;
+    text-decoration: none;
+    transition: color 0.15s;
+}
+
+.reservationLink:hover {
+    color: var(--primary-700);
+    text-decoration: underline;
+}
+
+.emptyState {
+    padding: 3rem 1rem;
+    text-align: center;
+    color: var(--text-secondary);
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .tableContainer {
+        overflow-x: auto;
+    }
+
+    .tableHeader,
+    .tableRow {
+        min-width: 800px;
+    }
+}
+
+@media (max-width: 768px) {
+    .dashboardGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .transactionsHeader {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .filterControls {
+        flex-direction: column;
+        width: 100%;
+        gap: 1rem;
+    }
+
+    .searchInputContainer,
+    .filterSelect {
+        width: 100%;
+    }
+
+    .chartContainer {
+        height: 300px;
+        padding: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .statCard {
+        padding: 1rem;
+    }
+
+    .statValue {
+        font-size: 1.5rem;
+    }
+
+    .actionButtons {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .btnSave,
+    .btnCancel {
+        width: 100%;
+        text-align: center;
+    }
+}

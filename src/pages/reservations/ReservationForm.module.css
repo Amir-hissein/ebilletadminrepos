@@ -1,0 +1,311 @@
+.reservationForm {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+/* Header */
+.reservationForm__header {
+    margin-bottom: var(--spacing-xl);
+}
+
+.reservationForm__title {
+    font-size: var(--font-size-2xl);
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-xs);
+}
+
+.reservationForm__subtitle {
+    color: var(--text-secondary);
+    font-size: var(--font-size-sm);
+}
+
+/* Form */
+.reservationForm__form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xl);
+}
+
+/* Section */
+.reservationForm__section {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+}
+
+.reservationForm__section-header {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-lg);
+    padding-bottom: var(--spacing-md);
+    border-bottom: 1px solid var(--border-light);
+}
+
+.reservationForm__section-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--primary-100);
+    color: var(--primary-600);
+}
+
+.reservationForm__section-title {
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+/* Client Type Toggle */
+.reservationForm__client-toggle {
+    display: flex;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-lg);
+}
+
+.reservationForm__toggle-btn {
+    flex: 1;
+    padding: var(--spacing-md);
+    border: 2px solid var(--border-light);
+    border-radius: var(--radius-md);
+    background: var(--bg-primary);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-sm);
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+.reservationForm__toggle-btn:hover {
+    border-color: var(--primary-300);
+    background: var(--primary-50);
+}
+
+.reservationForm__toggle-btn--active {
+    border-color: var(--primary-500);
+    background: var(--primary-50);
+    color: var(--primary-700);
+}
+
+/* Rows */
+.reservationForm__row {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-lg);
+}
+
+.reservationForm__row--three {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+/* Field */
+.reservationForm__field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+.reservationForm__field--full {
+    grid-column: 1 / -1;
+}
+
+.reservationForm__label {
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.reservationForm__label--required::after {
+    content: ' *';
+    color: var(--danger-500);
+}
+
+.reservationForm__input,
+.reservationForm__select {
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-sm);
+    background: var(--bg-primary);
+    transition: border-color var(--transition-fast);
+}
+
+.reservationForm__input:focus,
+.reservationForm__select:focus {
+    outline: none;
+    border-color: var(--primary-500);
+    box-shadow: 0 0 0 3px var(--primary-100);
+}
+
+.reservationForm__input--error,
+.reservationForm__select--error {
+    border-color: var(--danger-500);
+}
+
+.reservationForm__error {
+    font-size: var(--font-size-xs);
+    color: var(--danger-500);
+}
+
+/* Voyage Cards */
+.reservationForm__voyage-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.reservationForm__voyage-card {
+    padding: var(--spacing-md);
+    border: 2px solid var(--border-light);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.reservationForm__voyage-card:hover {
+    border-color: var(--primary-300);
+    background: var(--primary-50);
+}
+
+.reservationForm__voyage-card--selected {
+    border-color: var(--primary-500);
+    background: var(--primary-50);
+}
+
+.reservationForm__voyage-card--disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.reservationForm__voyage-route {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-xs);
+}
+
+.reservationForm__voyage-arrow {
+    color: var(--primary-500);
+}
+
+.reservationForm__voyage-meta {
+    display: flex;
+    gap: var(--spacing-lg);
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+}
+
+.reservationForm__voyage-meta-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+.reservationForm__voyage-price {
+    margin-left: auto;
+    font-weight: 600;
+    color: var(--success-600);
+}
+
+.reservationForm__voyage-places {
+    padding: 2px 8px;
+    background: var(--success-100);
+    color: var(--success-700);
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-xs);
+    font-weight: 500;
+}
+
+.reservationForm__voyage-places--low {
+    background: var(--warning-100);
+    color: var(--warning-700);
+}
+
+.reservationForm__voyage-places--none {
+    background: var(--danger-100);
+    color: var(--danger-700);
+}
+
+/* Price Summary */
+.reservationForm__price-summary {
+    background: linear-gradient(135deg, var(--primary-50) 0%, var(--primary-100) 100%);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    margin-top: var(--spacing-md);
+}
+
+.reservationForm__price-header {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    font-weight: 600;
+    color: var(--primary-800);
+    margin-bottom: var(--spacing-md);
+}
+
+.reservationForm__price-rows {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.reservationForm__price-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+}
+
+.reservationForm__price-row--total {
+    padding-top: var(--spacing-md);
+    border-top: 1px dashed var(--primary-300);
+    margin-top: var(--spacing-sm);
+    font-weight: 700;
+    font-size: var(--font-size-lg);
+    color: var(--primary-800);
+}
+
+/* Actions */
+.reservationForm__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--spacing-md);
+    padding-top: var(--spacing-lg);
+    border-top: 1px solid var(--border-light);
+}
+
+/* Empty voyage */
+.reservationForm__empty-voyages {
+    text-align: center;
+    padding: var(--spacing-xl);
+    color: var(--text-tertiary);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+
+    .reservationForm__row,
+    .reservationForm__row--three {
+        grid-template-columns: 1fr;
+    }
+
+    .reservationForm__client-toggle {
+        flex-direction: column;
+    }
+
+    .reservationForm__actions {
+        flex-direction: column-reverse;
+    }
+}

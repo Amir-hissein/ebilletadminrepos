@@ -1,0 +1,213 @@
+/* Critical Actions Styles */
+
+.container {
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+/* Tabs */
+.tabs {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 1px;
+}
+
+.tab {
+    padding: 0.75rem 1rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+    cursor: pointer;
+    font-size: 0.95rem;
+}
+
+.tab:hover {
+    color: var(--text-primary);
+}
+
+.activeTab {
+    color: var(--primary-600);
+    border-bottom-color: var(--primary-600);
+}
+
+/* Action Cards */
+.actionCard {
+    background: white;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border-color);
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.actionCard:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-1px);
+}
+
+.cardHeader {
+    padding: 1.25rem 1.5rem;
+    background: #f8fafc;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.headerLeft {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.iconWrapper {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.iconWrapper.danger {
+    background-color: #fee2e2;
+    color: #dc2626;
+}
+
+.iconWrapper.warning {
+    background-color: #ffedd5;
+    color: #ea580c;
+}
+
+.iconWrapper.info {
+    background-color: #dbeafe;
+    color: #2563eb;
+}
+
+.actionTitle {
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 1rem;
+    margin-bottom: 0.25rem;
+}
+
+.actionMeta {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.cardContent {
+    padding: 1.5rem;
+}
+
+.descriptionBox {
+    background: #f9fafb;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.dataGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.dataLabel {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.dataValue {
+    font-size: 0.95rem;
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.cardFooter {
+    padding: 1rem 1.5rem;
+    background: white;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+}
+
+/* Buttons */
+.btnAction {
+    padding: 0.625rem 1.25rem;
+    border-radius: var(--radius-md);
+    font-weight: 500;
+    font-size: 0.875rem;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btnReject {
+    background: white;
+    border: 1px solid var(--border-color);
+    color: var(--danger);
+}
+
+.btnReject:hover {
+    background: #fef2f2;
+    border-color: #fee2e2;
+}
+
+.btnValidate {
+    background: var(--primary-600);
+    border: 1px solid var(--primary-600);
+    color: white;
+}
+
+.btnValidate:hover {
+    background: var(--primary-700);
+}
+
+/* Status Badges */
+.statusBadge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.375rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.pending {
+    background-color: #ffedd5;
+    color: #c2410c;
+}
+
+.approved {
+    background-color: #dcfce7;
+    color: #16a34a;
+}
+
+.rejected {
+    background-color: #fee2e2;
+    color: #dc2626;
+}
+
+/* Empty State */
+.emptyState {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: white;
+    border-radius: var(--radius-lg);
+    border: 1px dashed var(--border-color);
+    color: var(--text-secondary);
+}
