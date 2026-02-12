@@ -7,7 +7,7 @@ import { getCriticalActions, validateCriticalAction, rejectCriticalAction } from
 import { formatDate } from '../../utils/formatters';
 import styles from './CriticalActions.module.css';
 import { useNavigate } from 'react-router-dom';
-import ConfirmModal from '../../components/common/ConfirmModal/ConfirmModal';
+import ConfirmModal from '../../components/common/ConfirmModal';
 
 const CriticalActions = () => {
     const navigate = useNavigate();

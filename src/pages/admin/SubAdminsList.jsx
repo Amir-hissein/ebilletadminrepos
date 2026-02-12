@@ -9,7 +9,7 @@ import {
     getTypesSousAdmin
 } from '../../api/users.api';
 import { formatDate } from '../../utils/formatters';
-import ConfirmModal from '../../components/common/ConfirmModal/ConfirmModal';
+import ConfirmModal from '../../components/common/ConfirmModal';
 import styles from './SubAdmins.module.css';
 
 const SubAdminsList = () => {

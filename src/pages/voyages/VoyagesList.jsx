@@ -20,7 +20,7 @@ import { TRIP_STATUS_LABELS, TRANSPORT_TYPES_LABELS } from '../../utils/constant
 import { formatDate, formatCurrency } from '../../utils/formatters';
 import Button from '../../components/common/Button';
 import Badge from '../../components/common/Badge';
-import ConfirmModal from '../../components/common/ConfirmModal/ConfirmModal';
+import ConfirmModal from '../../components/common/ConfirmModal';
 import styles from './VoyagesList.module.css';
 
 function VoyagesList() {

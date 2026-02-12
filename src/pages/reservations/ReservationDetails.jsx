@@ -26,7 +26,7 @@ import { getReservationById, cancelReservation } from '../../api/reservations.ap
 import { formatDate, formatCurrency } from '../../utils/formatters';
 import { RESERVATION_STATUS, RESERVATION_STATUS_LABELS, TRANSPORT_TYPES } from '../../utils/constants';
 import Button from '../../components/common/Button';
-import ConfirmModal from '../../components/common/ConfirmModal/ConfirmModal';
+import ConfirmModal from '../../components/common/ConfirmModal';
 import styles from './ReservationDetails.module.css';
 
 function ReservationDetails() {

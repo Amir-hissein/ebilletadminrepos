@@ -8,7 +8,7 @@ import {
 import { getComplaintById, updateComplaint } from '../../api/complaints.api';
 import { formatDate, formatCurrency } from '../../utils/formatters';
 import Badge from '../../components/common/Badge';
-import ConfirmModal from '../../components/common/ConfirmModal/ConfirmModal';
+import ConfirmModal from '../../components/common/ConfirmModal';
 import styles from './Support.module.css';
 
 const ComplaintDetail = () => {

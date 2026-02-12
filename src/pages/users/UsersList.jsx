@@ -22,7 +22,7 @@ import { ROLES, ROLE_NAMES, USER_STATUS_LABELS } from '../../utils/constants';
 import { formatDate, getInitials } from '../../utils/formatters';
 import Button from '../../components/common/Button';
 import Badge from '../../components/common/Badge';
-import ConfirmModal from '../../components/common/ConfirmModal/ConfirmModal';
+import ConfirmModal from '../../components/common/ConfirmModal';
 import styles from './UsersList.module.css';
 
 function UsersList() {

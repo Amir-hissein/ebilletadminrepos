@@ -12,7 +12,7 @@ import { formatDate, formatCurrency } from '../../utils/formatters';
 import { TRANSPORT_TYPES_LABELS, TRIP_STATUS_LABELS } from '../../utils/constants';
 import Button from '../../components/common/Button';
 import Badge from '../../components/common/Badge';
-import ConfirmModal from '../../components/common/ConfirmModal/ConfirmModal';
+import ConfirmModal from '../../components/common/ConfirmModal';
 import styles from './VoyageDetail.module.css';
 
 const VoyageDetail = () => {

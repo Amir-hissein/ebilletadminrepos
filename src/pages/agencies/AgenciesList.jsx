@@ -22,7 +22,7 @@ import { AGENCY_STATUS_LABELS } from '../../utils/constants';
 import { formatCurrency, formatDate } from '../../utils/formatters';
 import Button from '../../components/common/Button';
 import Badge from '../../components/common/Badge';
-import ConfirmModal from '../../components/common/ConfirmModal/ConfirmModal';
+import ConfirmModal from '../../components/common/ConfirmModal';
 import styles from './AgenciesList.module.css';
 
 function AgenciesList() {
