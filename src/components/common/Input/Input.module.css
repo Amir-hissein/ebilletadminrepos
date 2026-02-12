@@ -31,6 +31,18 @@
     border: 1px solid var(--border-light);
     border-radius: var(--radius-md);
     transition: all var(--transition-fast);
+    height: 48px;
+    /* Standard Desktop Height */
+}
+
+@media (max-width: 768px) {
+    .input {
+        height: 40px;
+        /* Standard Mobile Height */
+        font-size: 16px;
+        /* Prevent zooming on iOS */
+        padding: 0 var(--spacing-md);
+    }
 }
 
 .input:focus {

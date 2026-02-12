@@ -635,10 +635,47 @@
 }
 
 @media (max-width: 768px) {
+    .enterprise_container {
+        padding: 0.5rem;
+        /* Ultra compact padding */
+        gap: 1rem;
+    }
+
     .dashboard_top_nav {
         flex-direction: column;
         align-items: flex-start;
-        gap: 1.5rem;
+        gap: 1rem;
+    }
+
+    /* Force 2 columns for stats on mobile */
+    .stats_grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.5rem;
+    }
+
+    /* Compact Card content */
+    .stat_card {
+        padding: 0.75rem;
+    }
+
+    .stat_value {
+        font-size: 1.25rem;
+        /* Smaller font */
+    }
+
+    .stat_label {
+        font-size: 0.7rem;
+    }
+
+    /* Make charts scrollable or stacked */
+    .charts_section {
+        grid-template-columns: 1fr;
+    }
+
+    .chart_container {
+        padding: 0.75rem;
+        height: 300px;
+        /* Enforce height */
     }
 
     .kpi_grid {
