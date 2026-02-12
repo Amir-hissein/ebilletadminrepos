@@ -63,10 +63,10 @@ const Commissions = () => {
 
     return (
         <div className="fade-in">
-            <div className={styles.transactionsHeader}>
+            <div className={styles.finance__header}>
                 <div>
-                    <h1 className="page-title">Gestion des Commissions</h1>
-                    <p className="page-subtitle">Configurez le pourcentage perçu sur chaque réservation par agence</p>
+                    <h1 className={styles.finance__title}>Gestion des Commissions</h1>
+                    <p className={styles.finance__subtitle}>Configurez le pourcentage perçu sur chaque réservation par agence</p>
                 </div>
             </div>
 
@@ -101,98 +101,100 @@ const Commissions = () => {
             </div>
 
             <div className={styles.tableContainer}>
-                <table className="table w-full">
-                    <thead className={styles.tableHeader}>
-                        <tr>
-                            <th className={styles.tableHeaderCell}>Agence</th>
-                            <th className={styles.tableHeaderCell}>Ville</th>
-                            <th className={styles.tableHeaderCell}>Type</th>
-                            <th className={styles.tableHeaderCell} style={{ textAlign: 'center' }}>Taux de Commission</th>
-                            <th className={styles.tableHeaderCell} style={{ textAlign: 'right' }}>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {loading ? (
+                <div className={styles.tableWrapper}>
+                    <table className="table w-full">
+                        <thead className={styles.tableHeader}>
                             <tr>
-                                <td colSpan="5" style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-secondary)' }}>
-                                    Chargement des données...
-                                </td>
+                                <th className={styles.tableHeaderCell}>Agence</th>
+                                <th className={styles.tableHeaderCell}>Ville</th>
+                                <th className={styles.tableHeaderCell}>Type</th>
+                                <th className={styles.tableHeaderCell} style={{ textAlign: 'center' }}>Taux de Commission</th>
+                                <th className={styles.tableHeaderCell} style={{ textAlign: 'right' }}>Actions</th>
                             </tr>
-                        ) : agencies.map(agency => (
-                            <tr key={agency.id} className={styles.tableRow}>
-                                <td className={styles.tableCell}>
-                                    <span className={styles.agencyName}>{agency.nom}</span>
-                                    <span className={styles.agencyEmail}>{agency.email}</span>
-                                </td>
-                                <td className={styles.tableCell}>{agency.ville}</td>
-                                <td className={styles.tableCell}>
-                                    <span className={`${styles.serviceBadge} ${agency.type_service === 'bus' ? styles.serviceBadgeBus : styles.serviceBadgePlane
-                                        }`}>
-                                        {agency.type_service === 'bus' ? 'Transport Bus' : 'Compagnie Aérienne'}
-                                    </span>
-                                </td>
-                                <td className={styles.tableCell} style={{ textAlign: 'center' }}>
-                                    <div style={{ display: 'flex', justifyContent: 'center' }}>
+                        </thead>
+                        <tbody>
+                            {loading ? (
+                                <tr>
+                                    <td colSpan="5" style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-secondary)' }}>
+                                        Chargement des données...
+                                    </td>
+                                </tr>
+                            ) : agencies.map(agency => (
+                                <tr key={agency.id} className={styles.tableRow}>
+                                    <td className={styles.tableCell}>
+                                        <span className={styles.agencyName}>{agency.nom}</span>
+                                        <span className={styles.agencyEmail}>{agency.email}</span>
+                                    </td>
+                                    <td className={styles.tableCell}>{agency.ville}</td>
+                                    <td className={styles.tableCell}>
+                                        <span className={`${styles.serviceBadge} ${agency.type_service === 'bus' ? styles.serviceBadgeBus : styles.serviceBadgePlane
+                                            }`}>
+                                            {agency.type_service === 'bus' ? 'Transport Bus' : 'Compagnie Aérienne'}
+                                        </span>
+                                    </td>
+                                    <td className={styles.tableCell} style={{ textAlign: 'center' }}>
+                                        <div style={{ display: 'flex', justifyContent: 'center' }}>
+                                            {editingId === agency.id ? (
+                                                <div className={styles.editContainer}>
+                                                    <input
+                                                        type="number"
+                                                        min="0"
+                                                        max="100"
+                                                        step="0.1"
+                                                        className={styles.editInput}
+                                                        value={editValue}
+                                                        onChange={(e) => setEditValue(e.target.value)}
+                                                        autoFocus
+                                                        onKeyDown={(e) => {
+                                                            if (e.key === 'Enter') handleSave(agency.id);
+                                                            if (e.key === 'Escape') handleCancel();
+                                                        }}
+                                                    />
+                                                    <span style={{ color: 'var(--text-secondary)', fontWeight: 500 }}>%</span>
+                                                </div>
+                                            ) : (
+                                                <span style={{ fontSize: '1.125rem', fontWeight: 700 }} className={
+                                                    agency.commission_pourcentage >= 15 ? styles.rateHigh :
+                                                        agency.commission_pourcentage <= 5 ? styles.rateLow : styles.rateNormal
+                                                }>
+                                                    {formatPercent(agency.commission_pourcentage, 1)}
+                                                </span>
+                                            )}
+                                        </div>
+                                    </td>
+                                    <td className={styles.tableCell} style={{ textAlign: 'right' }}>
                                         {editingId === agency.id ? (
-                                            <div className={styles.editContainer}>
-                                                <input
-                                                    type="number"
-                                                    min="0"
-                                                    max="100"
-                                                    step="0.1"
-                                                    className={styles.editInput}
-                                                    value={editValue}
-                                                    onChange={(e) => setEditValue(e.target.value)}
-                                                    autoFocus
-                                                    onKeyDown={(e) => {
-                                                        if (e.key === 'Enter') handleSave(agency.id);
-                                                        if (e.key === 'Escape') handleCancel();
-                                                    }}
-                                                />
-                                                <span style={{ color: 'var(--text-secondary)', fontWeight: 500 }}>%</span>
+                                            <div className={styles.actionButtons}>
+                                                <button
+                                                    className={styles.btnSave}
+                                                    onClick={() => handleSave(agency.id)}
+                                                    disabled={saving}
+                                                    title="Sauvegarder"
+                                                >
+                                                    <Save size={18} />
+                                                </button>
+                                                <button
+                                                    className={styles.btnCancel}
+                                                    onClick={handleCancel}
+                                                    disabled={saving}
+                                                >
+                                                    Annuler
+                                                </button>
                                             </div>
                                         ) : (
-                                            <span style={{ fontSize: '1.125rem', fontWeight: 700 }} className={
-                                                agency.commission_pourcentage >= 15 ? styles.rateHigh :
-                                                    agency.commission_pourcentage <= 5 ? styles.rateLow : styles.rateNormal
-                                            }>
-                                                {formatPercent(agency.commission_pourcentage, 1)}
-                                            </span>
+                                            <button
+                                                className="btn btn-secondary btn-sm"
+                                                onClick={() => handleEdit(agency)}
+                                            >
+                                                Modifier
+                                            </button>
                                         )}
-                                    </div>
-                                </td>
-                                <td className={styles.tableCell} style={{ textAlign: 'right' }}>
-                                    {editingId === agency.id ? (
-                                        <div className={styles.actionButtons}>
-                                            <button
-                                                className={styles.btnSave}
-                                                onClick={() => handleSave(agency.id)}
-                                                disabled={saving}
-                                                title="Sauvegarder"
-                                            >
-                                                <Save size={18} />
-                                            </button>
-                                            <button
-                                                className={styles.btnCancel}
-                                                onClick={handleCancel}
-                                                disabled={saving}
-                                            >
-                                                Annuler
-                                            </button>
-                                        </div>
-                                    ) : (
-                                        <button
-                                            className="btn btn-secondary btn-sm"
-                                            onClick={() => handleEdit(agency)}
-                                        >
-                                            Modifier
-                                        </button>
-                                    )}
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
             <div className={styles.commissionNote}>

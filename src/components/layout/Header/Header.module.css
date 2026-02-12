@@ -68,12 +68,14 @@
 
 .header__breadcrumb-current {
     color: var(--sidebar-text-active);
-    font-weight: 500;
+    font-weight: 600;
+    /* Increased to 600 */
 }
 
 .header__breadcrumb-separator {
     color: var(--sidebar-text);
-    opacity: 0.5;
+    opacity: 0.3;
+    /* Decreased opacity from 0.5 */
 }
 
 /* Right Section */
@@ -91,11 +93,14 @@
 
 .header__search-input {
     width: 100%;
-    padding: var(--spacing-sm) var(--spacing-md);
-    padding-left: 40px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid var(--sidebar-border);
-    border-radius: var(--radius-lg);
+    padding: 0.75rem 1rem;
+    /* Increased padding */
+    padding-left: 42px;
+    background: rgba(255, 255, 255, 0.08);
+    /* Increased darkness/opacity slightly */
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-xl);
+    /* Changed from radius-lg */
     font-size: var(--font-size-sm);
     transition: all var(--transition-fast);
     color: var(--sidebar-text-active);
@@ -104,13 +109,14 @@
 .header__search-input:focus {
     outline: none;
     border-color: var(--sidebar-accent);
-    background: rgba(255, 255, 255, 0.1);
-    box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1);
+    background: rgba(255, 255, 255, 0.12);
+    box-shadow: 0 0 15px rgba(0, 212, 255, 0.15);
+    /* Softened glow */
 }
 
 .header__search-input::placeholder {
     color: var(--sidebar-text);
-    opacity: 0.7;
+    opacity: 0.6;
 }
 
 .header__search-icon {

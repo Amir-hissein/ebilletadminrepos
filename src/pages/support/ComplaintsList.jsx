@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { AlertCircle, CheckCircle, Clock, AlertTriangle, Filter } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { getComplaints, getComplaintsStats } from '../../api/complaints.api';
 import { formatDate } from '../../utils/formatters';
 import styles from './Support.module.css';
 
 const ComplaintsList = () => {
+    const navigate = useNavigate();
     const [complaints, setComplaints] = useState([]);
     const [stats, setStats] = useState({ total: 0, ouvertes: 0, en_traitement: 0, resolues: 0 });
     const [loading, setLoading] = useState(true);
@@ -53,14 +55,24 @@ const ComplaintsList = () => {
     };
 
     return (
-        <div className="fade-in">
-            <div className="mb-8">
-                <h1 className="page-title">Support & Réclamations</h1>
-                <p className="page-subtitle">Gestion des plaintes clients et litiges agences</p>
-            </div>
+        <div className={styles.enterprise_container}>
+            <header className={styles.complaints_header_pro}>
+                <div className={styles.header_main}>
+                    <div className={styles.greeting_row}>
+                        <h1>Support & Réclamations</h1>
+                        <div className={styles.status_badge_compact}>
+                            <span className={styles.status_dot}></span>
+                            <span className={styles.status_text}>Haute Priorité Actives</span>
+                        </div>
+                    </div>
+                    <span className={styles.date_display}>
+                        {new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+                    </span>
+                </div>
+            </header>
 
             <div className={styles.statsGrid}>
-                <div className={`${styles.statCard} ${styles.redGradient}`}>
+                <div className={styles.statCard}>
                     <div className={styles.statCardContent}>
                         <div className={`${styles.statIconWrapper} ${styles.red}`}>
                             <AlertCircle size={24} />
@@ -72,7 +84,7 @@ const ComplaintsList = () => {
                     </div>
                 </div>
 
-                <div className={`${styles.statCard} ${styles.orangeGradient}`}>
+                <div className={styles.statCard}>
                     <div className={styles.statCardContent}>
                         <div className={`${styles.statIconWrapper} ${styles.orange}`}>
                             <Clock size={24} />
@@ -84,7 +96,7 @@ const ComplaintsList = () => {
                     </div>
                 </div>
 
-                <div className={`${styles.statCard} ${styles.greenGradient}`}>
+                <div className={styles.statCard}>
                     <div className={styles.statCardContent}>
                         <div className={`${styles.statIconWrapper} ${styles.green}`}>
                             <CheckCircle size={24} />
@@ -95,16 +107,11 @@ const ComplaintsList = () => {
                         </div>
                     </div>
                 </div>
-            </div>
+            </div >
 
-            <div className={styles.filterBar}>
-                <div className="flex items-center gap-2 text-gray-500 mr-4">
-                    <Filter size={20} />
-                    <span className="font-medium text-sm">Filtres:</span>
-                </div>
-
+            <div className={styles.complaints_filters_pro}>
                 <select
-                    className={styles.filterSelect}
+                    className={styles.select_compact}
                     value={filters.statut}
                     onChange={(e) => setFilters(prev => ({ ...prev, statut: e.target.value }))}
                 >
@@ -115,7 +122,7 @@ const ComplaintsList = () => {
                 </select>
 
                 <select
-                    className={styles.filterSelect}
+                    className={styles.select_compact}
                     value={filters.priorite}
                     onChange={(e) => setFilters(prev => ({ ...prev, priorite: e.target.value }))}
                 >
@@ -126,7 +133,7 @@ const ComplaintsList = () => {
                 </select>
 
                 <select
-                    className={styles.filterSelect}
+                    className={styles.select_compact}
                     value={filters.type}
                     onChange={(e) => setFilters(prev => ({ ...prev, type: e.target.value }))}
                 >
@@ -138,77 +145,93 @@ const ComplaintsList = () => {
                 </select>
             </div>
 
-            <div className={styles.tableContainer}>
-                <table className="table w-full">
-                    <thead className={styles.tableHeader}>
-                        <tr>
-                            <th className={styles.tableHeaderCell}>Date</th>
-                            <th className={styles.tableHeaderCell}>Client</th>
-                            <th className={styles.tableHeaderCell}>Sujet</th>
-                            <th className={styles.tableHeaderCell}>Priorité</th>
-                            <th className={styles.tableHeaderCell}>Statut</th>
-                            <th className={styles.tableHeaderCell} style={{ textAlign: 'right' }}>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {loading ? (
+            <div className={styles.complaints_table_panel_pro}>
+                <div className={styles.table_scroll_viewport_pro}>
+                    <table className={styles.complaints_table_pro}>
+                        <thead>
                             <tr>
-                                <td colSpan="6" className="text-center p-8 text-gray-500">Chargement...</td>
+                                <th>Émission</th>
+                                <th>Émetteur / Agence</th>
+                                <th>Sujet & Description</th>
+                                <th>Niveau</th>
+                                <th>État</th>
+                                <th style={{ textAlign: 'right' }}>Actions</th>
                             </tr>
-                        ) : complaints.length === 0 ? (
-                            <tr>
-                                <td colSpan="6" className="text-center p-8 text-gray-500">Aucune plainte trouvée</td>
-                            </tr>
-                        ) : complaints.map(complaint => (
-                            <tr key={complaint.id} className={styles.tableRow}>
-                                <td className={styles.tableCell}>
-                                    {formatDate(complaint.created_at)}
-                                </td>
-                                <td className={styles.tableCell}>
-                                    <span className={styles.clientInfo}>
-                                        {complaint.client ? `${complaint.client.nom} ${complaint.client.prenom}` : 'Anonyme'}
-                                    </span>
-                                    <span className={styles.clientSub}>
-                                        {complaint.agence ? complaint.agence.nom : '—'}
-                                    </span>
-                                </td>
-                                <td className={styles.tableCell}>
-                                    <div className="flex flex-col">
-                                        <span className={styles.complaintType}>
-                                            {complaint.type_plainte}
+                        </thead>
+                        <tbody>
+                            {loading ? (
+                                <tr>
+                                    <td colSpan="6" className="text-center p-8 opacity-50">Synchronisation du support...</td>
+                                </tr>
+                            ) : complaints.length === 0 ? (
+                                <tr>
+                                    <td colSpan="6">
+                                        <div className={styles.empty_state_container_pro}>
+                                            <div className={styles.empty_state_icon_pro}>
+                                                <AlertCircle size={40} />
+                                            </div>
+                                            <h3>Aucun dossier actif</h3>
+                                            <p>Le centre de support est actuellement vide. Félicitations, aucun litige n'est en attente.</p>
+                                            <button
+                                                className={styles.reset_filters_btn_pro}
+                                                onClick={() => setFilters({ statut: '', priorite: '', type: '' })}
+                                            >
+                                                Actualiser les flux
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ) : complaints.map(complaint => (
+                                <tr key={complaint.id}>
+                                    <td>
+                                        <span className={styles.mono_text}>
+                                            {formatDate(complaint.created_at)}
                                         </span>
-                                        <span className={styles.complaintDesc} title={complaint.description}>
-                                            {complaint.description}
-                                        </span>
-                                    </div>
-                                </td>
-                                <td className={styles.tableCell}>
-                                    <span className={`${styles.priorityBadge} ${complaint.priorite === 'haute' ? styles.priorityHigh :
-                                            complaint.priorite === 'moyenne' ? styles.priorityMedium : styles.priorityLow
-                                        }`}>
-                                        {complaint.priorite === 'haute' && <AlertTriangle size={12} />}
-                                        {getPriorityLabel(complaint.priorite)}
-                                    </span>
-                                </td>
-                                <td className={styles.tableCell}>
-                                    <span className={`${styles.statusBadge} ${complaint.statut === 'ouverte' ? styles.statusOpen :
-                                            complaint.statut === 'en_traitement' ? styles.statusProcessing : styles.statusResolved
-                                        }`}>
-                                        {getStatusLabel(complaint.statut)}
-                                    </span>
-                                </td>
-                                <td className={styles.tableCell} style={{ textAlign: 'right' }}>
-                                    <button
-                                        className={styles.btnAction}
-                                        onClick={() => window.location.href = `/support/${complaint.id}`}
-                                    >
-                                        Gérer
-                                    </button>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
+                                    </td>
+                                    <td>
+                                        <div className={styles.complaint_meta_cell}>
+                                            <span className={styles.cell_main_text}>
+                                                {complaint.client ? `${complaint.client.nom} ${complaint.client.prenom}` : 'Utilisateur Anonyme'}
+                                            </span>
+                                            <span className={styles.cell_sub_text}>
+                                                {complaint.agence ? complaint.agence.nom : 'Canal Direct'}
+                                            </span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div className={styles.complaint_content_cell}>
+                                            <span className={styles.complaint_subject}>
+                                                {complaint.type_plainte}
+                                            </span>
+                                            <span className={styles.complaint_preview} title={complaint.description}>
+                                                {complaint.description}
+                                            </span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div className={`${styles.priority_indicator} ${styles[`priority_${complaint.priorite}`]}`}>
+                                            {complaint.priorite === 'haute' && <AlertTriangle size={14} />}
+                                            {getPriorityLabel(complaint.priorite)}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div className={styles[`status_pill_${complaint.statut === 'en_traitement' ? 'warning' : complaint.statut === 'resolue' ? 'success' : 'danger'}`]}>
+                                            {getStatusLabel(complaint.statut)}
+                                        </div>
+                                    </td>
+                                    <td style={{ textAlign: 'right' }}>
+                                        <button
+                                            className={styles.action_btn_pro}
+                                            onClick={() => navigate(`/support/${complaint.id}`)}
+                                        >
+                                            Gérer le dossier
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     );

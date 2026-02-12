@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
     Users, Plus, Edit2, Trash2, Shield, Calendar, Mail,
-    Phone, X, CheckSquare, Briefcase, Clock
+    Phone, X, CheckSquare, Briefcase, Clock, ChevronRight
 } from 'lucide-react';
 import {
     getUsers, createUser,
@@ -9,6 +9,7 @@ import {
     getTypesSousAdmin
 } from '../../api/users.api';
 import { formatDate } from '../../utils/formatters';
+import ConfirmModal from '../../components/common/ConfirmModal/ConfirmModal';
 import styles from './SubAdmins.module.css';
 
 const SubAdminsList = () => {
@@ -17,6 +18,7 @@ const SubAdminsList = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingUser, setEditingUser] = useState(null);
     const [typesSousAdmin, setTypesSousAdmin] = useState([]);
+    const [deleteModal, setDeleteModal] = useState({ open: false, userId: null, userName: '' });
 
     // Form states
     const [formData, setFormData] = useState({
@@ -69,10 +71,10 @@ const SubAdminsList = () => {
         setIsModalOpen(true);
     };
 
-    const handleDelete = async (id) => {
-        if (!window.confirm('Êtes-vous sûr de vouloir supprimer ce sous-administrateur ?')) return;
+    const handleDelete = async () => {
         try {
-            await deleteUser(id);
+            await deleteUser(deleteModal.userId);
+            setDeleteModal({ open: false, userId: null, userName: '' });
             await loadData();
         } catch (error) {
             console.error('Erreur suppression:', error);
@@ -126,51 +128,63 @@ const SubAdminsList = () => {
     };
 
     return (
-        <div className={`fade-in ${styles.container}`}>
-            <div className={styles.header}>
-                <div>
-                    <h1 className={styles.title}>Gestion des Sous-Admins</h1>
-                    <p className={styles.subtitle}>Gérez les comptes staff et leurs responsabilités</p>
+        <div className={styles.enterprise_container}>
+            <header className={styles.subadmins_header_pro}>
+                <div className={styles.header_main}>
+                    <div className={styles.greeting_row}>
+                        <h1>Gestion des Sous-Admin</h1>
+                        <div className={styles.status_badge_compact}>
+                            <span className={styles.status_dot}></span>
+                            <span className={styles.status_text}>Staff & Encadrement</span>
+                        </div>
+                    </div>
+                    <span className={styles.date_display}>
+                        {new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+                    </span>
                 </div>
-                <button className={styles.createButton} onClick={handleCreate}>
-                    <Plus size={20} />
-                    Nouveau Sous-Admin
-                </button>
-            </div>
+                <div className={styles.global_actions}>
+                    <button className={styles.btn_primary_pro} onClick={handleCreate}>
+                        <Plus size={16} />
+                        <span>Nouveau Sous-Admin</span>
+                    </button>
+                </div>
+            </header>
 
             {loading ? (
-                <div className="text-center p-12 text-gray-500">Chargement...</div>
+                <div className="text-center p-24 text-gray-400 font-bold uppercase tracking-widest text-xs">
+                    Chargement des protocoles d'accès...
+                </div>
             ) : subAdmins.length === 0 ? (
-                <div className={styles.emptyState}>
-                    <Users size={48} className="mx-auto text-gray-300 mb-4" />
-                    <p>Aucun sous-administrateur trouvé. Créez-en un pour commencer.</p>
+                <div className={styles.empty_state_container_pro}>
+                    <div className={styles.empty_state_icon_pro}>
+                        <Users size={40} />
+                    </div>
+                    <h3>Aucun staff détecté</h3>
+                    <p>Votre équipe d'administration est vide. Commencez par inviter vos collaborateurs.</p>
                 </div>
             ) : (
-                <div className={styles.grid}>
+                <div className={styles.subadmins_grid_pro}>
                     {subAdmins.map(admin => (
-                        <div key={admin.id} className={styles.card}>
-                            <div className={styles.cardHeader}>
-                                <div className={styles.userInfo}>
-                                    <div className={styles.avatar}>
-                                        {admin.prenom[0]}{admin.nom[0]}
-                                    </div>
-                                    <div className={styles.userDetails}>
-                                        <h3>{admin.prenom} {admin.nom}</h3>
-                                        <span className={styles.userRole}>Sous-Admin</span>
-                                        <div className={styles.userEmail}>{admin.email}</div>
-                                    </div>
+                        <div key={admin.id} className={styles.admin_card_pro}>
+                            <div className={styles.card_header_pro}>
+                                <div className={styles.card_avatar_pro}>
+                                    {admin.prenom[0]}{admin.nom[0]}
                                 </div>
-                                <div className={styles.actions}>
+                                <div className={styles.card_meta_pro}>
+                                    <span className={styles.role_label_pro}>Sous-Admin</span>
+                                    <h3>{admin.prenom} {admin.nom}</h3>
+                                </div>
+                                <div className={styles.action_buttons_pro}>
                                     <button
-                                        className={styles.btnIcon}
+                                        className={styles.action_btn_pro}
                                         onClick={() => handleEdit(admin)}
                                         title="Modifier"
                                     >
                                         <Edit2 size={16} />
                                     </button>
                                     <button
-                                        className={`${styles.btnIcon} ${styles.delete}`}
-                                        onClick={() => handleDelete(admin.id)}
+                                        className={`${styles.action_btn_pro} ${styles.delete}`}
+                                        onClick={() => setDeleteModal({ open: true, userId: admin.id, userName: `${admin.prenom} ${admin.nom}` })}
                                         title="Supprimer"
                                     >
                                         <Trash2 size={16} />
@@ -178,31 +192,46 @@ const SubAdminsList = () => {
                                 </div>
                             </div>
 
-                            <div className={styles.cardBody}>
-                                <span className={styles.sectionLabel}>Responsabilités</span>
-                                <div className={styles.responsibilityList}>
-                                    {admin.types_sous_admin && admin.types_sous_admin.length > 0 ? (
-                                        admin.types_sous_admin.map(type => (
-                                            <span
-                                                key={type.id}
-                                                className={`${styles.responsibilityBadge} ${styles[`resp_${type.code}`]}`}
-                                            >
-                                                {type.libelle || type.code}
-                                            </span>
-                                        ))
-                                    ) : (
-                                        <span className="text-sm text-gray-400 italic">Aucune responsabilité assignée</span>
-                                    )}
+                            <div className={styles.card_body_pro}>
+                                <div className={styles.contact_row_pro}>
+                                    <Mail size={14} />
+                                    <span>{admin.email}</span>
+                                </div>
+                                {admin.telephone && (
+                                    <div className={styles.contact_row_pro}>
+                                        <Phone size={14} />
+                                        <span>{admin.telephone}</span>
+                                    </div>
+                                )}
+
+                                <div className={styles.responsibility_section_pro}>
+                                    <div className={styles.section_title_pro}>
+                                        <Shield size={12} />
+                                        Responsabilités
+                                    </div>
+                                    <div className={styles.responsibility_tags_pro}>
+                                        {admin.types_sous_admin && admin.types_sous_admin.length > 0 ? (
+                                            admin.types_sous_admin.map(type => (
+                                                <span
+                                                    key={type.id}
+                                                    className={`${styles.resp_tag_pro} ${styles[`resp_${type.code}`]}`}
+                                                >
+                                                    {type.libelle || type.code}
+                                                </span>
+                                            ))
+                                        ) : (
+                                            <span className="text-xs text-gray-400 italic">Aucune responsabilité</span>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
 
-                            <div className={styles.cardFooter}>
-                                <div className={styles.footerInfo}>
+                            <div className={styles.card_footer_pro}>
+                                <div className={styles.timestamp_pro}>
                                     <Clock size={12} className="inline mr-1" />
-                                    Ajouté le {formatDate(admin.created_at)}
+                                    {formatDate(admin.created_at)}
                                 </div>
-                                <div className={`px-2 py-0.5 rounded text-xs font-semibold ${admin.statut === 'actif' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
-                                    }`}>
+                                <div className={styles.status_pill_success}>
                                     {admin.statut === 'actif' ? 'Actif' : 'Suspendu'}
                                 </div>
                             </div>
@@ -237,6 +266,7 @@ const SubAdminsList = () => {
                                             value={formData.prenom}
                                             onChange={(e) => setFormData(prev => ({ ...prev, prenom: e.target.value }))}
                                             required
+                                            placeholder="Ex: Jean"
                                         />
                                     </div>
                                     <div className={styles.formGroup}>
@@ -247,31 +277,33 @@ const SubAdminsList = () => {
                                             value={formData.nom}
                                             onChange={(e) => setFormData(prev => ({ ...prev, nom: e.target.value }))}
                                             required
+                                            placeholder="Ex: Dupont"
                                         />
                                     </div>
                                     <div className={`${styles.formGroup} ${styles.fullWidth}`}>
                                         <label className={styles.label}>Email professionnel</label>
-                                        <div className="relative">
-                                            <Mail size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                                        <div className={styles.inputWrapper}>
+                                            <Mail size={18} className={styles.inputIcon} />
                                             <input
                                                 type="email"
-                                                className={`${styles.input} pl-10 w-full`}
+                                                className={`${styles.input} ${styles.inputWithIcon}`}
                                                 value={formData.email}
                                                 onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
                                                 required
+                                                placeholder="jean.dupont@business.com"
                                             />
                                         </div>
                                     </div>
                                     <div className={`${styles.formGroup} ${styles.fullWidth}`}>
                                         <label className={styles.label}>Téléphone</label>
-                                        <div className="relative">
-                                            <Phone size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                                        <div className={styles.inputWrapper}>
+                                            <Phone size={18} className={styles.inputIcon} />
                                             <input
                                                 type="tel"
-                                                className={`${styles.input} pl-10 w-full`}
+                                                className={`${styles.input} ${styles.inputWithIcon}`}
                                                 value={formData.telephone}
                                                 onChange={(e) => setFormData(prev => ({ ...prev, telephone: e.target.value }))}
-                                                placeholder="+235"
+                                                placeholder="+235 XX XX XX XX"
                                                 required
                                             />
                                         </div>
@@ -289,7 +321,7 @@ const SubAdminsList = () => {
                                                     checked={formData.types_sous_admin.includes(type.id)}
                                                     onChange={() => handleTypeChange(type.id)}
                                                 />
-                                                <Briefcase size={14} className={
+                                                <Briefcase size={16} className={
                                                     formData.types_sous_admin.includes(type.id) ? 'text-primary-600' : 'text-gray-400'
                                                 } />
                                                 <span>{type.libelle}</span>
@@ -311,7 +343,7 @@ const SubAdminsList = () => {
                                     type="submit"
                                     className={styles.btnSave}
                                 >
-                                    {editingUser ? 'Enregistrer' : 'Créer le compte'}
+                                    {editingUser ? 'Enregistrer les modifications' : 'Créer le compte'}
                                 </button>
                             </div>
                         </form>

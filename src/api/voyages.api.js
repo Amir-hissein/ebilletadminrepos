@@ -23,7 +23,7 @@ let voyagesData = [...DEMO_VOYAGES];
 // FONCTIONS DÉMO
 // ============================================
 
-function demoGetVoyages(filters = {}) {
+export function demoGetVoyages(filters = {}) {
     return new Promise((resolve) => {
         setTimeout(() => {
             let result = [...voyagesData];
@@ -119,7 +119,7 @@ function demoCreateVoyage(data) {
                 places_disponibles: data.places_totales,
                 type_transport: data.type_transport,
                 numero_vol_bus: data.numero_vol_bus,
-                statut: TRIP_STATUS.PLANNED,
+                statut: TRIP_STATUS.PLANNED || 'planifie',
                 description: data.description || '',
                 created_by: data.created_by || 1,
                 validated_by: null,
@@ -215,23 +215,19 @@ export async function deleteVoyage(id) {
 // Statistiques des voyages
 export async function getVoyagesStats(filters = {}) {
     if (DEMO_MODE) {
-        return new Promise((resolve) => {
-            setTimeout(() => {
-                let data = filters.agence_id
-                    ? voyagesData.filter(v => v.agence_id === parseInt(filters.agence_id))
-                    : voyagesData;
+        // En mode démo, on réutilise la logique de filtrage de getVoyages mais pour les stats
+        const result = await demoGetVoyages({ ...filters, limit: 1000 });
+        const data = result.data;
 
-                resolve({
-                    total: data.length,
-                    planifie: data.filter(v => v.statut === 'planifie').length,
-                    en_cours: data.filter(v => v.statut === 'en_cours').length,
-                    termine: data.filter(v => v.statut === 'termine').length,
-                    annule: data.filter(v => v.statut === 'annule').length,
-                    places_totales: data.reduce((sum, v) => sum + v.places_totales, 0),
-                    places_disponibles: data.reduce((sum, v) => sum + v.places_disponibles, 0)
-                });
-            }, 100);
-        });
+        return {
+            total: data.length,
+            planifie: data.filter(v => v.statut === 'planifie').length,
+            en_cours: data.filter(v => v.statut === 'en_cours').length,
+            termine: data.filter(v => v.statut === 'termine').length,
+            annule: data.filter(v => v.statut === 'annule').length,
+            places_totales: data.reduce((sum, v) => sum + v.places_totales, 0),
+            places_disponibles: data.reduce((sum, v) => sum + v.places_disponibles, 0)
+        };
     }
     const response = await api.get(`${ENDPOINTS.TRIPS}/stats`, { params: filters });
     return response.data;

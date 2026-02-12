@@ -422,6 +422,43 @@ export const DEMO_VOYAGES = [
     }
 ];
 
+// Génération de données massives pour le test des voyages (30+ voyages)
+const generateMoreVoyages = () => {
+    const status_list = ['planifie', 'en_cours', 'termine'];
+    const agences_ids = [1, 2, 4, 5];
+    const villes_dest = [2, 3, 4, 5, 6, 7, 8, 9, 10];
+    const base_prices = [15000, 18000, 20000, 25000];
+
+    for (let i = 6; i <= 35; i++) {
+        const dest = villes_dest[Math.floor(Math.random() * villes_dest.length)];
+        const total_places = Math.random() > 0.8 ? 72 : 50;
+        DEMO_VOYAGES.push({
+            id: i,
+            agence_id: agences_ids[Math.floor(Math.random() * agences_ids.length)],
+            ville_depart_id: 1,
+            ville_arrivee_id: dest,
+            date_depart: `2026-02-${Math.floor(Math.random() * 10) + 10}`,
+            heure_depart: `${String(Math.floor(Math.random() * 12) + 5).padStart(2, '0')}:00`,
+            date_arrivee: `2026-02-20`,
+            heure_arrivee: '18:00',
+            prix_unitaire: base_prices[Math.floor(Math.random() * base_prices.length)],
+            places_totales: total_places,
+            places_disponibles: Math.floor(Math.random() * total_places),
+            type_transport: total_places > 60 ? TRANSPORT_TYPES.PLANE : TRANSPORT_TYPES.BUS,
+            numero_vol_bus: `${total_places > 60 ? 'AT' : 'TE'}-${String(i).padStart(3, '0')}`,
+            statut: status_list[Math.floor(Math.random() * status_list.length)],
+            description: 'Voyage régulier généré pour le test',
+            created_by: 1,
+            validated_by: 1,
+            validated_at: '2026-02-01T10:00:00Z',
+            created_at: '2026-02-01T10:00:00Z',
+            updated_at: '2026-02-01T10:00:00Z'
+        });
+    }
+};
+
+generateMoreVoyages();
+
 // ============================================
 // TABLE: clients
 // ============================================
@@ -527,6 +564,45 @@ export const DEMO_RESERVATIONS = [
     }
 ];
 
+// Génération de données massives pour le test des réservations (60+ réservations)
+const generateMoreReservations = () => {
+    const statuts_paiement = ['paye', 'en_attente', 'echoue'];
+    const statuts_reservation = ['confirmee', 'annulee', 'en_attente'];
+    const modes_paiement = ['mobile_money', 'especes', 'carte_bancaire'];
+
+    for (let i = 4; i <= 65; i++) {
+        const voyage_id = Math.floor(Math.random() * 30) + 1;
+        const places = Math.floor(Math.random() * 4) + 1;
+        const prix_u = 15000 + (Math.floor(Math.random() * 10) * 1000);
+        const total = prix_u * places;
+        const commission = total * 0.1;
+
+        DEMO_RESERVATIONS.push({
+            id: i,
+            numero_reservation: `RES202602${String(i).padStart(4, '0')}`,
+            voyage_id: voyage_id,
+            client_id: Math.floor(Math.random() * 3) + 1,
+            agence_id: Math.floor(Math.random() * 5) + 1,
+            agent_id: Math.random() > 0.5 ? 7 : 6,
+            nombre_places: places,
+            prix_total: total,
+            commission_plateforme: commission,
+            montant_agence: total - commission,
+            statut_paiement: statuts_paiement[Math.floor(Math.random() * statuts_paiement.length)],
+            mode_paiement: modes_paiement[Math.floor(Math.random() * modes_paiement.length)],
+            statut_reservation: statuts_reservation[Math.floor(Math.random() * statuts_reservation.length)],
+            qr_code: `/qrcodes/RES202602${String(i).padStart(4, '0')}.png`,
+            date_paiement: '2026-02-05T10:00:00Z',
+            date_annulation: null,
+            motif_annulation: null,
+            created_at: '2026-02-05T09:00:00Z',
+            updated_at: '2026-02-05T10:00:00Z'
+        });
+    }
+};
+
+generateMoreReservations();
+
 // ============================================
 // TABLE: transactions
 // ============================================
@@ -565,6 +641,32 @@ export const DEMO_TRANSACTIONS = [
         created_at: '2026-02-02T09:00:00Z'
     }
 ];
+
+// Génération de données massives pour le test du scroll (200+ transactions)
+const generateMoreTransactions = () => {
+    const types = ['paiement', 'commission', 'remboursement'];
+    const statuts = ['completee', 'en_attente'];
+    const startDate = new Date('2026-01-01');
+
+    for (let i = 4; i <= 200; i++) {
+        const type = types[Math.floor(Math.random() * types.length)];
+        const date = new Date(startDate.getTime() + Math.random() * (new Date() - startDate));
+
+        DEMO_TRANSACTIONS.push({
+            id: i,
+            reservation_id: Math.floor(Math.random() * 3) + 1,
+            type_transaction: type,
+            montant: Math.floor(Math.random() * 50000) + 5000,
+            beneficiaire_type: type === 'commission' ? 'plateforme' : 'agence',
+            beneficiaire_id: type === 'commission' ? null : (Math.floor(Math.random() * 5) + 1),
+            statut: Math.random() > 0.1 ? 'completee' : 'en_attente',
+            reference_paiement: `${type === 'paiement' ? 'PAY' : type === 'commission' ? 'COM' : 'REF'}-${2026}-${String(i).padStart(4, '0')}`,
+            created_at: date.toISOString()
+        });
+    }
+};
+
+generateMoreTransactions();
 
 // ============================================
 // TABLE: plaintes

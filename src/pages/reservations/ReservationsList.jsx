@@ -15,6 +15,7 @@ import {
     CheckCircle,
     Clock
 } from 'lucide-react';
+import { useAuth } from '../../contexts/AuthContext';
 import { getReservations, getReservationsStats } from '../../api/reservations.api';
 import {
     RESERVATION_STATUS_LABELS,
@@ -27,6 +28,7 @@ import styles from './ReservationsList.module.css';
 
 function ReservationsList() {
     const navigate = useNavigate();
+    const { isSuperAdmin } = useAuth();
     const [reservations, setReservations] = useState([]);
     const [stats, setStats] = useState({});
     const [loading, setLoading] = useState(true);
@@ -81,69 +83,86 @@ function ReservationsList() {
     };
 
     return (
-        <div className={styles.reservations}>
-            {/* Header */}
-            <div className={styles.reservations__header}>
-                <div>
-                    <h1 className={styles.reservations__title}>Gestion des Réservations</h1>
-                    <p className={styles.reservations__subtitle}>
-                        Suivez toutes les réservations de la plateforme
-                    </p>
+        <div className={styles.enterprise_container}>
+            <header className={styles.reservations_header_pro}>
+                <div className={styles.header_main}>
+                    <div className={styles.greeting_row}>
+                        <h1>Gestion des Réservations</h1>
+                        <div className={styles.status_badge_compact}>
+                            <span className={styles.status_dot}></span>
+                            <span className={styles.status_text}>Système de Billetterie Live</span>
+                        </div>
+                    </div>
+                    <span className={styles.date_display}>
+                        {new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+                    </span>
                 </div>
-                <Button icon={Plus} onClick={() => navigate('/reservations/new')}>
-                    Nouvelle réservation
-                </Button>
-            </div>
+                {!isSuperAdmin && (
+                    <div className={styles.global_actions}>
+                        <button className={styles.btn_primary_pro} onClick={() => navigate('/reservations/new')}>
+                            <Plus size={16} />
+                            <span>Nouvelle Réservation</span>
+                        </button>
+                    </div>
+                )}
+            </header>
 
             {/* Stats Cards */}
-            <div className={styles.reservations__stats}>
-                <div className={styles['reservations__stat-card']}>
-                    <div className={`${styles['reservations__stat-icon']} ${styles['reservations__stat-icon--total']}`}>
-                        <Ticket size={20} />
+            <div className={styles.reservations_stats_pro}>
+                <div className={styles.stat_card_pro}>
+                    <div className={`${styles.stat_icon_pro} ${styles.icon_total}`}>
+                        <Ticket size={24} />
                     </div>
-                    <span className={styles['reservations__stat-value']}>{stats.total || 0}</span>
-                    <span className={styles['reservations__stat-label']}>Total réservations</span>
+                    <div className={styles.stat_info_pro}>
+                        <span className={styles.stat_value_pro}>{stats.total || 0}</span>
+                        <span className={styles.stat_label_pro}>Total réservations</span>
+                    </div>
                 </div>
-                <div className={styles['reservations__stat-card']}>
-                    <div className={`${styles['reservations__stat-icon']} ${styles['reservations__stat-icon--confirmed']}`}>
-                        <CheckCircle size={20} />
+                <div className={styles.stat_card_pro}>
+                    <div className={`${styles.stat_icon_pro} ${styles.icon_confirmed}`}>
+                        <CheckCircle size={24} />
                     </div>
-                    <span className={styles['reservations__stat-value']}>{stats.confirmee || 0}</span>
-                    <span className={styles['reservations__stat-label']}>Confirmées</span>
+                    <div className={styles.stat_info_pro}>
+                        <span className={styles.stat_value_pro}>{stats.confirmee || 0}</span>
+                        <span className={styles.stat_label_pro}>Confirmées</span>
+                    </div>
                 </div>
-                <div className={styles['reservations__stat-card']}>
-                    <div className={`${styles['reservations__stat-icon']} ${styles['reservations__stat-icon--pending']}`}>
-                        <Clock size={20} />
+                <div className={styles.stat_card_pro}>
+                    <div className={`${styles.stat_icon_pro} ${styles.icon_pending}`}>
+                        <Clock size={24} />
                     </div>
-                    <span className={styles['reservations__stat-value']}>{stats.en_attente || 0}</span>
-                    <span className={styles['reservations__stat-label']}>En attente</span>
+                    <div className={styles.stat_info_pro}>
+                        <span className={styles.stat_value_pro}>{stats.en_attente || 0}</span>
+                        <span className={styles.stat_label_pro}>En attente</span>
+                    </div>
                 </div>
-                <div className={styles['reservations__stat-card']}>
-                    <div className={`${styles['reservations__stat-icon']} ${styles['reservations__stat-icon--revenue']}`}>
-                        <DollarSign size={20} />
+                <div className={styles.stat_card_pro}>
+                    <div className={`${styles.stat_icon_pro} ${styles.icon_revenue}`}>
+                        <DollarSign size={24} />
                     </div>
-                    <span className={styles['reservations__stat-value']}>
-                        {formatCurrency(stats.montant_total || 0)}
-                    </span>
-                    <span className={styles['reservations__stat-label']}>Revenus totaux</span>
+                    <div className={styles.stat_info_pro}>
+                        <span className={styles.stat_value_pro}>
+                            {formatCurrency(stats.montant_total || 0)}
+                        </span>
+                        <span className={styles.stat_label_pro}>Revenus totaux</span>
+                    </div>
                 </div>
             </div>
 
-            {/* Filters */}
-            <div className={styles.reservations__filters}>
-                <div className={styles.reservations__search}>
-                    <Search size={18} className={styles['reservations__search-icon']} />
+            <div className={styles.reservations_filters_pro}>
+                <div className={styles.search_group_pro}>
+                    <Search size={18} className={styles.search_icon_pro} />
                     <input
                         type="text"
-                        placeholder="Rechercher par code, client, téléphone..."
-                        className={styles['reservations__search-input']}
+                        placeholder="Rechercher par code PNR, nom client, email..."
+                        className={styles.search_input_pro}
                         value={filters.search}
                         onChange={(e) => handleFilterChange('search', e.target.value)}
                     />
                 </div>
 
                 <select
-                    className={styles['reservations__filter-select']}
+                    className={styles.select_compact}
                     value={filters.statut}
                     onChange={(e) => handleFilterChange('statut', e.target.value)}
                 >
@@ -154,7 +173,7 @@ function ReservationsList() {
                 </select>
 
                 <select
-                    className={styles['reservations__filter-select']}
+                    className={styles.select_compact}
                     value={filters.statut_paiement}
                     onChange={(e) => handleFilterChange('statut_paiement', e.target.value)}
                 >
@@ -165,130 +184,131 @@ function ReservationsList() {
                 </select>
             </div>
 
-            {/* Table */}
-            <div className={styles['reservations__table-container']}>
-                {loading ? (
-                    <div className={styles.reservations__loading}>
-                        Chargement des réservations...
-                    </div>
-                ) : reservations.length === 0 ? (
-                    <div className={styles.reservations__empty}>
-                        <div className={styles['reservations__empty-icon']}>
-                            <Ticket size={32} />
+            <div className={styles.reservations_table_panel_pro}>
+                <div className={styles.table_scroll_viewport_pro}>
+                    {loading ? (
+                        <div className={styles.reservations__loading}>
+                            Chargement du registre des réservations...
                         </div>
-                        <p>Aucune réservation trouvée</p>
-                    </div>
-                ) : (
-                    <table className={styles.reservations__table}>
-                        <thead>
-                            <tr>
-                                <th>Code</th>
-                                <th>Client</th>
-                                <th>Voyage</th>
-                                <th>Places</th>
-                                <th>Montant</th>
-                                <th>Statut</th>
-                                <th>Paiement</th>
-                                <th>Date</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {reservations.map(reservation => (
-                                <tr key={reservation.id}>
-                                    <td>
-                                        <span className={styles.reservations__code}>
-                                            {reservation.code_reservation}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <div className={styles['reservations__client-cell']}>
-                                            <div className={styles['reservations__client-info']} style={{ overflow: 'hidden' }}>
-                                                <span className={`${styles['reservations__client-name']} truncate`} title={reservation.client_nom}>
-                                                    {reservation.client_nom}
-                                                </span>
-                                                <span className={`${styles['reservations__client-email']} truncate`} title={reservation.client_email}>
-                                                    {reservation.client_email}
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div className={styles.reservations__voyage}>
-                                            <div className={styles['reservations__voyage-route']}>
-                                                <span>{reservation.voyage?.ville_depart_nom}</span>
-                                                <ArrowRight size={14} className={styles['reservations__voyage-route-arrow']} />
-                                                <span>{reservation.voyage?.ville_arrivee_nom}</span>
-                                            </div>
-                                            <span className={styles['reservations__voyage-date']}>
-                                                <Calendar size={12} style={{ marginRight: '4px' }} />
-                                                {formatDate(reservation.voyage?.date_depart)}
-                                            </span>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <span className={styles.reservations__places}>
-                                            {reservation.nombre_places}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <span className={styles.reservations__montant}>
-                                            {formatCurrency(reservation.montant_total)}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <Badge variant={getStatusVariant(reservation.statut)}>
-                                            {RESERVATION_STATUS_LABELS[reservation.statut]}
-                                        </Badge>
-                                    </td>
-                                    <td>
-                                        <Badge variant={getPaymentStatusVariant(reservation.statut_paiement)} size="sm">
-                                            {PAYMENT_STATUS_LABELS[reservation.statut_paiement]}
-                                        </Badge>
-                                    </td>
-                                    <td>
-                                        <span className={styles.reservations__date}>
-                                            {formatDate(reservation.created_at)}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <div className={styles.reservations__actions}>
-                                            <button
-                                                className={styles['reservations__action-btn']}
-                                                onClick={() => navigate(`/reservations/${reservation.id}`)}
-                                                title="Voir détails"
-                                            >
-                                                <Eye size={16} />
-                                            </button>
-                                            {reservation.statut === 'en_attente' && (
-                                                <>
-                                                    <button
-                                                        className={`${styles['reservations__action-btn']} ${styles['reservations__action-btn--success']}`}
-                                                        title="Confirmer"
-                                                    >
-                                                        <Check size={16} />
-                                                    </button>
-                                                    <button
-                                                        className={`${styles['reservations__action-btn']} ${styles['reservations__action-btn--danger']}`}
-                                                        title="Annuler"
-                                                    >
-                                                        <X size={16} />
-                                                    </button>
-                                                </>
-                                            )}
-                                            <button
-                                                className={styles['reservations__action-btn']}
-                                                title="Plus d'options"
-                                            >
-                                                <MoreVertical size={16} />
-                                            </button>
-                                        </div>
-                                    </td>
+                    ) : reservations.length === 0 ? (
+                        <div className={styles.empty_state_container_pro}>
+                            <div className={styles.empty_state_icon_pro}>
+                                <Ticket size={40} />
+                            </div>
+                            <h3>Aucune réservation trouvée</h3>
+                            <p>Nous n'avons trouvé aucun dossier correspondant à "<strong>{filters.search || 'votre recherche'}</strong>".</p>
+                            <button
+                                className={styles.reset_filters_btn_pro}
+                                onClick={() => setFilters({ search: '', statut: '', statut_paiement: '' })}
+                            >
+                                Réinitialiser les dossiers
+                            </button>
+                        </div>
+                    ) : (
+                        <table className={styles.reservations_table_pro}>
+                            <thead>
+                                <tr>
+                                    <th>Code PNR</th>
+                                    <th>Client / Passager</th>
+                                    <th>Trajet & Date</th>
+                                    <th>Places</th>
+                                    <th>Total</th>
+                                    <th>Statut Dossier</th>
+                                    <th>Paiement</th>
+                                    <th>Date Émission</th>
+                                    <th>Actions</th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                )}
+                            </thead>
+                            <tbody>
+                                {reservations.map(reservation => (
+                                    <tr key={reservation.id}>
+                                        <td>
+                                            <span className={styles.reservation_code_cell}>
+                                                {reservation.code_reservation}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div className={styles.client_identity_cell}>
+                                                <span className={`${styles.client_name_main} truncate`}>{reservation.client_nom}</span>
+                                                <span className={`${styles.client_sub_info} truncate`}>{reservation.client_email}</span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div className={styles.voyage_brief_cell}>
+                                                <div className={styles.route_row}>
+                                                    <span className="truncate">{reservation.voyage?.ville_depart_nom}</span>
+                                                    <ArrowRight size={12} className={styles.route_arrow_eye} />
+                                                    <span className="truncate">{reservation.voyage?.ville_arrivee_nom}</span>
+                                                </div>
+                                                <span className={styles.client_sub_info}>
+                                                    {formatDate(reservation.voyage?.date_depart)}
+                                                </span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span className={styles.mono_text}>
+                                                {reservation.nombre_places}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span className={styles.amount_cell_pro}>
+                                                {formatCurrency(reservation.montant_total)}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div className={styles[`status_pill_${getStatusVariant(reservation.statut)}`]}>
+                                                {RESERVATION_STATUS_LABELS[reservation.statut]}
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div className={styles[`status_pill_${getPaymentStatusVariant(reservation.statut_paiement)}`]}>
+                                                {PAYMENT_STATUS_LABELS[reservation.statut_paiement]}
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span className={styles.client_sub_info}>
+                                                {formatDate(reservation.created_at)}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div className={styles.reservation_actions_pro}>
+                                                <button
+                                                    className={styles.action_btn_pro}
+                                                    onClick={() => navigate(`/reservations/${reservation.id}`)}
+                                                    title="Voir détails"
+                                                >
+                                                    <Eye size={16} />
+                                                </button>
+                                                {!isSuperAdmin && reservation.statut === 'en_attente' && (
+                                                    <>
+                                                        <button
+                                                            className={`${styles.action_btn_pro} ${styles.action_btn_success}`}
+                                                            title="Confirmer"
+                                                        >
+                                                            <Check size={16} />
+                                                        </button>
+                                                        <button
+                                                            className={`${styles.action_btn_pro} ${styles.action_btn_danger}`}
+                                                            title="Annuler"
+                                                        >
+                                                            <X size={16} />
+                                                        </button>
+                                                    </>
+                                                )}
+                                                <button
+                                                    className={styles.action_btn_pro}
+                                                    title="Options"
+                                                >
+                                                    <MoreVertical size={16} />
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    )}
+                </div>
             </div>
         </div>
     );

@@ -44,105 +44,121 @@ const TransactionsList = () => {
     };
 
     return (
-        <div className="fade-in">
-            <div className={styles.transactionsHeader}>
-                <div>
-                    <h1 className="page-title">Transactions Financières</h1>
-                    <p className="page-subtitle">Historique des paiements et commissions</p>
-                </div>
-                <button className="btn btn-secondary">
-                    <Download size={18} style={{ marginRight: '8px' }} />
-                    Exporter
-                </button>
-            </div>
-
-            <div className={styles.filterCard}>
-                <div className={styles.filterControls}>
-                    <div className={styles.searchInputContainer}>
-                        <Search size={18} className={styles.searchIcon} />
-                        <input
-                            type="text"
-                            placeholder="Rechercher par référence..."
-                            className={styles.searchInput}
-                            value={filters.search}
-                            onChange={(e) => handleFilterChange('search', e.target.value)}
-                        />
+        <div className={styles.enterprise_container}>
+            <header className={styles.finance_header_pro}>
+                <div className={styles.header_main}>
+                    <div className={styles.greeting_row}>
+                        <h1>Transactions Historiques</h1>
+                        <div className={styles.status_badge_compact}>
+                            <span className={styles.status_dot}></span>
+                            <span className={styles.status_text}>Système d'Audit Actif</span>
+                        </div>
                     </div>
+                    <span className={styles.date_display}>
+                        {new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+                    </span>
+                </div>
+                <div className={styles.global_actions}>
+                    <button className={styles.btn_primary_outline} onClick={() => alert('Export CSV...')}>
+                        <Download size={16} />
+                        <span>Exporter CSV</span>
+                    </button>
+                </div>
+            </header>
 
+            <div className={styles.transactions_filters_pro}>
+                <div className={styles.search_group_pro}>
+                    <Search size={18} className={styles.search_icon_pro} />
+                    <input
+                        type="text"
+                        placeholder="Rechercher une référence ou un code..."
+                        className={styles.search_input_pro}
+                        value={filters.search}
+                        onChange={(e) => handleFilterChange('search', e.target.value)}
+                    />
+                </div>
+
+                <div className={styles.filter_group_pro}>
                     <select
-                        className={styles.filterSelect}
+                        className={styles.select_compact}
                         value={filters.type}
                         onChange={(e) => handleFilterChange('type', e.target.value)}
-                        style={{ width: '200px' }}
                     >
                         <option value="">Tous les types</option>
-                        <option value="paiement">Paiement</option>
-                        <option value="commission">Commission</option>
+                        <option value="paiement">Paiement Client</option>
+                        <option value="commission">Commission Agence</option>
                         <option value="remboursement">Remboursement</option>
                     </select>
                 </div>
             </div>
 
-            <div className={styles.tableContainer}>
-                <table className="table w-full">
-                    <thead className={styles.tableHeader}>
-                        <tr>
-                            <th className={styles.tableHeaderCell}>Référence</th>
-                            <th className={styles.tableHeaderCell}>Date</th>
-                            <th className={styles.tableHeaderCell}>Type</th>
-                            <th className={styles.tableHeaderCell}>Réservation</th>
-                            <th className={styles.tableHeaderCell}>Bénéficiaire</th>
-                            <th className={styles.tableHeaderCell}>Montant</th>
-                            <th className={styles.tableHeaderCell}>Statut</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {loading ? (
+            <div className={styles.audit_table_panel_pro}>
+                <div className={styles.table_scroll_viewport_pro}>
+                    <table className={styles.audit_table_pro}>
+                        <thead>
                             <tr>
-                                <td colSpan="7" className={styles.emptyState}>Chargement des données...</td>
+                                <th>Référence Audit</th>
+                                <th>Date & Heure</th>
+                                <th>Type Flux</th>
+                                <th>Code Résa</th>
+                                <th>Bénéficiaire</th>
+                                <th>Montant Net</th>
+                                <th>Statut Audit</th>
                             </tr>
-                        ) : transactions.length === 0 ? (
-                            <tr>
-                                <td colSpan="7" className={styles.emptyState}>Aucune transaction trouvée</td>
-                            </tr>
-                        ) : (
-                            transactions.map((t) => (
-                                <tr key={t.id} className={styles.tableRow}>
-                                    <td className={styles.tableCell}>
-                                        <span className={styles.reference}>{t.reference_paiement}</span>
-                                    </td>
-                                    <td className={styles.tableCell}>{formatDate(t.created_at)}</td>
-                                    <td className={styles.tableCell}>
-                                        <Badge variant={t.type_transaction === 'paiement' ? 'info' : 'warning'}>
-                                            {getTypeLabel(t.type_transaction)}
-                                        </Badge>
-                                    </td>
-                                    <td className={styles.tableCell}>
-                                        <span className={styles.reservationLink}>
-                                            {t.reservation_code}
-                                        </span>
-                                    </td>
-                                    <td className={styles.tableCell}>{t.beneficiaire_nom}</td>
-                                    <td className={`${styles.tableCell} ${t.type_transaction === 'paiement'
-                                            ? styles.amountPositive
-                                            : styles.amountNeutral
-                                        }`}>
-                                        {formatCurrency(t.montant)}
-                                    </td>
-                                    <td className={styles.tableCell}>
-                                        <span className={
-                                            t.statut === 'completee'
-                                                ? styles.statusCompleted
-                                                : styles.statusPending
-                                        }>
-                                            {t.statut === 'completee' ? 'Complétée' : 'En attente'}
-                                        </span>
+                        </thead>
+                        <tbody>
+                            {loading ? (
+                                <tr>
+                                    <td colSpan="7" className={styles.emptyState}>Chargement des données...</td>
+                                </tr>
+                            ) : transactions.length === 0 ? (
+                                <tr>
+                                    <td colSpan="7">
+                                        <div className={styles.empty_state_container_pro}>
+                                            <div className={styles.empty_state_icon_pro}>
+                                                <Search size={40} />
+                                            </div>
+                                            <h3>Aucun résultat trouvé</h3>
+                                            <p>Nous n'avons trouvé aucune transaction correspondant à "<strong>{filters.search}</strong>".</p>
+                                            <button
+                                                className={styles.reset_filters_btn_pro}
+                                                onClick={() => setFilters({ search: '', type: '', statut: '' })}
+                                            >
+                                                Réinitialiser les filtres
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
-                            ))
-                        )}
-                    </tbody>
-                </table>
+                            ) : (
+                                transactions.map((t) => (
+                                    <tr key={t.id}>
+                                        <td className={styles.mono_text}>{t.reference_paiement}</td>
+                                        <td className={styles.mono_text}>{formatDate(t.created_at)}</td>
+                                        <td>
+                                            <Badge variant={t.type_transaction === 'paiement' ? 'info' : 'warning'}>
+                                                {getTypeLabel(t.type_transaction)}
+                                            </Badge>
+                                        </td>
+                                        <td>
+                                            <span className={styles.reservation_code_badge}>
+                                                {t.reservation_code}
+                                            </span>
+                                        </td>
+                                        <td className={styles.beneficiary_cell}>{t.beneficiaire_nom}</td>
+                                        <td className={styles.amount_cell_pro}>
+                                            {formatCurrency(t.montant)}
+                                        </td>
+                                        <td>
+                                            <div className={t.statut === 'completee' ? styles.status_pill_success : styles.status_pill_pending}>
+                                                {t.statut === 'completee' ? 'Complétée' : 'Audit en cours'}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))
+                            )}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     );

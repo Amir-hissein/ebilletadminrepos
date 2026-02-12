@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import {
     Settings as SettingsIcon, Globe, CreditCard, Shield,
     Save, RotateCcw, Monitor, AlertTriangle,
-    Mail, Phone, MapPin, Share2, Sun, Moon
+    Mail, Phone, MapPin, Share2, Sun, Moon, DollarSign,
+    FileText, Bell, Lock, Eye, History, Smartphone, Tablet, Laptop
 } from 'lucide-react';
 import { getSettings, updateSettings } from '../../api/settings.api';
 import { useTheme } from '../../contexts/ThemeContext';
@@ -49,7 +50,6 @@ const Settings = () => {
     const handleSave = async () => {
         setSaving(true);
         try {
-            // Dans la démo, on simule la sauvegarde de l'onglet actif
             const categoryData = localSettings[activeTab];
             await updateSettings(activeTab, categoryData);
 
@@ -75,187 +75,291 @@ const Settings = () => {
         return <div className="text-center p-12 text-gray-500">Chargement des paramètres...</div>;
     }
 
+    const navItems = [
+        { id: 'platform', label: 'Plateforme', icon: Globe },
+        { id: 'finance', label: 'Finance & Commissions', icon: CreditCard },
+        { id: 'security', label: 'Sécurité & Accès', icon: Shield },
+        { id: 'notifications', label: 'Notifications', icon: Bell },
+        { id: 'system', label: 'État du Système', icon: Monitor },
+        { id: 'appearance', label: 'Apparence', icon: Eye },
+        { id: 'audit', label: 'Logs d\'Audit', icon: History },
+    ];
+
     return (
         <div className={`fade-in ${styles.container}`}>
-            <div className={styles.header}>
-                <h1 className={styles.title}>Configuration Système</h1>
-                <p className={styles.subtitle}>Gérez les paramètres globaux de la plateforme E-Billet</p>
+            {/* Premium Header */}
+            <div className={styles.pageHeader}>
+                <div className={styles.headerContent}>
+                    <h1 className={styles.title}>Configuration Système</h1>
+                    <p className={styles.subtitle}>Gérez les paramètres globaux de la plateforme E-Billet, la sécurité et l'état du système.</p>
+                </div>
             </div>
 
             {message && (
-                <div className={`${styles.alert} ${message.type === 'success' ? styles.alertSuccess : styles.alertWarning
-                    }`}>
-                    {message.type === 'success' ? <p>{message.text}</p> : <p>{message.text}</p>}
+                <div className={`${styles.alert} ${message.type === 'success' ? styles.alertSuccess : styles.alertWarning}`}>
+                    <Shield size={18} />
+                    <span>{message.text}</span>
                 </div>
             )}
 
-            <div className={styles.tabs}>
-                <button
-                    className={`${styles.tab} ${activeTab === 'platform' ? styles.tab_active : ''}`}
-                    onClick={() => setActiveTab('platform')}
-                >
-                    <Globe size={18} className="inline mr-2" />
-                    Plateforme
-                </button>
-                <button
-                    className={`${styles.tab} ${activeTab === 'finance' ? styles.tab_active : ''}`}
-                    onClick={() => setActiveTab('finance')}
-                >
-                    <CreditCard size={18} className="inline mr-2" />
-                    Finance
-                </button>
-                <button
-                    className={`${styles.tab} ${activeTab === 'system' ? styles.tab_active : ''}`}
-                    onClick={() => setActiveTab('system')}
-                >
-                    <Shield size={18} className="inline mr-2" />
-                    Système
-                </button>
-            </div>
+            <div className={styles.settingsLayout}>
+                {/* Sidebar Navigation */}
+                <aside className={styles.sidebarNav}>
+                    {navItems.map(item => (
+                        <button
+                            key={item.id}
+                            className={`${styles.navItem} ${activeTab === item.id ? styles.navItemActive : ''}`}
+                            onClick={() => setActiveTab(item.id)}
+                        >
+                            <item.icon size={18} />
+                            <span>{item.label}</span>
+                        </button>
+                    ))}
+                </aside>
 
-            <div className={styles.sections}>
-                {/* ONGLET PLATEFORME */}
-                {activeTab === 'platform' && (
-                    <div className={styles.section}>
-                        <div className={styles.sectionHeader}>
-                            <h2 className={styles.sectionTitle}>Identification</h2>
-                        </div>
-                        <div className={styles.sectionBody}>
-                            <div className={styles.formGrid}>
-                                <div className={`${styles.formGroup} ${styles.fullWidth}`}>
-                                    <label className={styles.label}>Nom de la plateforme</label>
-                                    <input
-                                        type="text"
-                                        className={styles.input}
-                                        value={localSettings.platform.name}
-                                        onChange={(e) => handleChange('platform', 'name', e.target.value)}
-                                    />
+                {/* Main Content Area */}
+                <main className={styles.mainContent}>
+
+                    {/* ONGLET PLATEFORME */}
+                    {activeTab === 'platform' && (
+                        <>
+                            <div className={styles.settingsCard}>
+                                <div className={styles.cardHeader}>
+                                    <Globe size={18} />
+                                    <h3>Informations Générales</h3>
                                 </div>
-                                <div className={styles.formGroup}>
-                                    <label className={styles.label}>Email de contact</label>
-                                    <div className="relative">
-                                        <Mail size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                                        <input
-                                            type="email"
-                                            className={`${styles.input} pl-10`}
-                                            value={localSettings.platform.email_contact}
-                                            onChange={(e) => handleChange('platform', 'email_contact', e.target.value)}
-                                        />
-                                    </div>
-                                </div>
-                                <div className={styles.formGroup}>
-                                    <label className={styles.label}>Téléphone</label>
-                                    <div className="relative">
-                                        <Phone size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                                <div className={styles.cardBody}>
+                                    <div className={styles.formGroup}>
+                                        <label className={styles.label}>Nom de la plateforme</label>
                                         <input
                                             type="text"
-                                            className={`${styles.input} pl-10`}
-                                            value={localSettings.platform.phone_contact}
-                                            onChange={(e) => handleChange('platform', 'phone_contact', e.target.value)}
+                                            className={styles.input}
+                                            value={localSettings.platform.name}
+                                            onChange={(e) => handleChange('platform', 'name', e.target.value)}
                                         />
                                     </div>
-                                </div>
-                                <div className={`${styles.formGroup} ${styles.fullWidth}`}>
-                                    <label className={styles.label}>Adresse physique</label>
-                                    <div className="relative">
-                                        <MapPin size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                                    <div className={styles.formGroup}>
+                                        <label className={styles.label}>Slogan</label>
                                         <input
                                             type="text"
-                                            className={`${styles.input} pl-10`}
-                                            value={localSettings.platform.address}
-                                            onChange={(e) => handleChange('platform', 'address', e.target.value)}
+                                            className={styles.input}
+                                            value={localSettings.platform.tagline || ''}
+                                            onChange={(e) => handleChange('platform', 'tagline', e.target.value)}
                                         />
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                )}
 
-                {/* ONGLET FINANCE */}
-                {activeTab === 'finance' && (
-                    <div className={styles.section}>
-                        <div className={styles.sectionHeader}>
-                            <h2 className={styles.sectionTitle}>Paramètres Financiers</h2>
-                        </div>
-                        <div className={styles.sectionBody}>
-                            <div className={styles.formGrid}>
-                                <div className={styles.formGroup}>
-                                    <label className={styles.label}>Commission par défaut (%)</label>
-                                    <input
-                                        type="number"
-                                        className={styles.input}
-                                        value={localSettings.finance.default_commission_rate}
-                                        onChange={(e) => handleChange('finance', 'default_commission_rate', parseInt(e.target.value))}
-                                    />
-                                    <span className={styles.description}>S'applique aux nouvelles agences créées</span>
+                            <div className={styles.settingsCard}>
+                                <div className={styles.cardHeader}>
+                                    <Mail size={18} />
+                                    <h3>Coordonnées de Contact</h3>
                                 </div>
-                                <div className={styles.formGroup}>
-                                    <label className={styles.label}>Seuil de retrait minimum (FCFA)</label>
-                                    <input
-                                        type="number"
-                                        className={styles.input}
-                                        value={localSettings.finance.min_withdrawal_amount}
-                                        onChange={(e) => handleChange('finance', 'min_withdrawal_amount', parseInt(e.target.value))}
-                                    />
-                                </div>
-                                <div className={styles.formGroup}>
-                                    <label className={styles.label}>Devise principale</label>
-                                    <select
-                                        className={styles.select}
-                                        value={localSettings.finance.currency}
-                                        onChange={(e) => handleChange('finance', 'currency', e.target.value)}
-                                    >
-                                        <option value="FCFA">FCFA - Franc CFA</option>
-                                        <option value="EUR">EUR - Euro</option>
-                                        <option value="USD">USD - Dollar US</option>
-                                    </select>
-                                </div>
-                                <div className={styles.formGroup}>
-                                    <label className={styles.label}>Numéro d'identification fiscale</label>
-                                    <input
-                                        type="text"
-                                        className={styles.input}
-                                        value={localSettings.finance.tax_id}
-                                        onChange={(e) => handleChange('finance', 'tax_id', e.target.value)}
-                                    />
+                                <div className={styles.cardBody}>
+                                    <div className={styles.formGroup}>
+                                        <label className={styles.label}>Email de support</label>
+                                        <div className={styles.inputWrapper}>
+                                            <Mail size={16} className={styles.inputIcon} />
+                                            <input
+                                                type="email"
+                                                className={`${styles.input} ${styles.inputWithIcon}`}
+                                                value={localSettings.platform.email_contact}
+                                                onChange={(e) => handleChange('platform', 'email_contact', e.target.value)}
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className={styles.formGroup}>
+                                        <label className={styles.label}>Téléphone assistance</label>
+                                        <div className={styles.inputWrapper}>
+                                            <Phone size={16} className={styles.inputIcon} />
+                                            <input
+                                                type="text"
+                                                className={`${styles.input} ${styles.inputWithIcon}`}
+                                                value={localSettings.platform.phone_contact}
+                                                onChange={(e) => handleChange('platform', 'phone_contact', e.target.value)}
+                                            />
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                )}
+                        </>
+                    )}
 
-                {/* ONGLET SYSTÈME */}
-                {activeTab === 'system' && (
-                    <div className={styles.section}>
-                        <div className={styles.sectionHeader}>
-                            <h2 className={styles.sectionTitle}>État du Système</h2>
-                        </div>
-                        <div className={styles.sectionBody}>
-                            <div className={styles.sections}>
-                                {/* Toggle Mode Sombre */}
-                                <div className={styles.toggleRow}>
-                                    <div className={styles.toggleInfo}>
-                                        <span className={styles.toggleTitle}>
-                                            {isDark ? <Moon size={18} className="inline mr-2" /> : <Sun size={18} className="inline mr-2" />}
-                                            Mode Sombre
-                                        </span>
-                                        <span className={styles.description}>Basculer entre le thème clair et sombre</span>
-                                    </div>
-                                    <label className={styles.switch}>
-                                        <input
-                                            type="checkbox"
-                                            checked={isDark}
-                                            onChange={toggleTheme}
-                                        />
-                                        <span className={styles.slider}></span>
-                                    </label>
+                    {/* ONGLET FINANCE */}
+                    {activeTab === 'finance' && (
+                        <>
+                            <div className={styles.settingsCard}>
+                                <div className={styles.cardHeader}>
+                                    <CreditCard size={18} />
+                                    <h3>Configuration des Commissions</h3>
                                 </div>
+                                <div className={styles.cardBody}>
+                                    <div className={styles.formGroup}>
+                                        <label className={styles.label}>Commission Standard Platforme (%)</label>
+                                        <input
+                                            type="number"
+                                            className={styles.input}
+                                            value={localSettings.finance.default_commission_rate}
+                                            onChange={(e) => handleChange('finance', 'default_commission_rate', parseInt(e.target.value))}
+                                        />
+                                        <p className={styles.helpText}>Pourcentage prélevé par défaut.</p>
+                                    </div>
+                                    <div className={styles.formGroup}>
+                                        <label className={styles.label}>Devise</label>
+                                        <select
+                                            className={styles.select}
+                                            value={localSettings.finance.currency}
+                                            onChange={(e) => handleChange('finance', 'currency', e.target.value)}
+                                        >
+                                            <option value="FCFA">FCFA - Franc CFA</option>
+                                            <option value="EUR">EUR - Euro</option>
+                                            <option value="USD">USD - Dollar US</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </>
+                    )}
 
-                                <div className={styles.toggleRow}>
-                                    <div className={styles.toggleInfo}>
-                                        <span className={styles.toggleTitle}>Mode Maintenance</span>
-                                        <span className={styles.description}>Désactive l'accès public à la plateforme</span>
+                    {/* ONGLET SÉCURITÉ */}
+                    {activeTab === 'security' && (
+                        <>
+                            <div className={styles.settingsCard}>
+                                <div className={styles.cardHeader}>
+                                    <Lock size={18} />
+                                    <h3>Sécurité Avancée</h3>
+                                </div>
+                                <div className={styles.cardBody}>
+                                    <div className={styles.switchRow}>
+                                        <div className={styles.switchInfo}>
+                                            <span className={styles.switchTitle}>Double Authentification (2FA)</span>
+                                            <span className={styles.switchDesc}>Exiger un code de sécurité à chaque connexion.</span>
+                                        </div>
+                                        <label className={styles.switch}>
+                                            <input
+                                                type="checkbox"
+                                                checked={localSettings.security.two_factor_auth}
+                                                onChange={(e) => handleChange('security', 'two_factor_auth', e.target.checked)}
+                                            />
+                                            <span className={styles.slider}></span>
+                                        </label>
+                                    </div>
+                                    <div className={styles.formGroup}>
+                                        <label className={styles.label}>Expiration du Mot de Passe (Jours)</label>
+                                        <input
+                                            type="number"
+                                            className={styles.input}
+                                            value={localSettings.security.password_expiry_days}
+                                            onChange={(e) => handleChange('security', 'password_expiry_days', parseInt(e.target.value))}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className={styles.settingsCard}>
+                                <div className={styles.cardHeader}>
+                                    <Smartphone size={18} />
+                                    <h3>Sessions Actives</h3>
+                                </div>
+                                <div className={styles.cardBody}>
+                                    <div className={styles.sessionList}>
+                                        {localSettings.security.active_sessions.map(session => (
+                                            <div key={session.id} className={styles.sessionItem}>
+                                                <div className={styles.sessionMain}>
+                                                    <div className={styles.sessionIcon}>
+                                                        {session.device.includes('Chrome') ? <Laptop size={20} /> : <Smartphone size={20} />}
+                                                    </div>
+                                                    <div className={styles.sessionMeta}>
+                                                        <span className={styles.deviceName}>{session.device}</span>
+                                                        <span className={styles.deviceMeta}>{session.location} • {session.last_active}</span>
+                                                    </div>
+                                                </div>
+                                                {session.status === 'active' ? (
+                                                    <span className="text-xs font-bold text-emerald-500 uppercase">En cours</span>
+                                                ) : (
+                                                    <button className="text-xs font-bold text-red-500 hover:underline">Déconnecter</button>
+                                                )}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                        </>
+                    )}
+
+                    {/* ONGLET NOTIFICATIONS */}
+                    {activeTab === 'notifications' && (
+                        <div className={styles.settingsCard}>
+                            <div className={styles.cardHeader}>
+                                <Bell size={18} />
+                                <h3>Préférences de Notification</h3>
+                            </div>
+                            <div className={styles.cardBody}>
+                                <table className={styles.prefTable}>
+                                    <thead>
+                                        <tr>
+                                            <th>Événement</th>
+                                            <th>Statut</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td className={styles.prefLabel}>Nouvelle Réservation (Email)</td>
+                                            <td>
+                                                <label className={styles.switch}>
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={localSettings.notifications.email_new_reservation}
+                                                        onChange={(e) => handleChange('notifications', 'email_new_reservation', e.target.checked)}
+                                                    />
+                                                    <span className={styles.slider}></span>
+                                                </label>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td className={styles.prefLabel}>Alertes Critiques (SMS)</td>
+                                            <td>
+                                                <label className={styles.switch}>
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={localSettings.notifications.sms_critical_alerts}
+                                                        onChange={(e) => handleChange('notifications', 'sms_critical_alerts', e.target.checked)}
+                                                    />
+                                                    <span className={styles.slider}></span>
+                                                </label>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td className={styles.prefLabel}>Rapport Hebdomadaire</td>
+                                            <td>
+                                                <label className={styles.switch}>
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={localSettings.notifications.email_weekly_report}
+                                                        onChange={(e) => handleChange('notifications', 'email_weekly_report', e.target.checked)}
+                                                    />
+                                                    <span className={styles.slider}></span>
+                                                </label>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* ONGLET SYSTÈME */}
+                    {activeTab === 'system' && (
+                        <div className={styles.settingsCard}>
+                            <div className={styles.cardHeader}>
+                                <Monitor size={18} />
+                                <h3>État du Système</h3>
+                            </div>
+                            <div className={styles.cardBody}>
+                                <div className={styles.switchRow}>
+                                    <div className={styles.switchInfo}>
+                                        <span className={styles.switchTitle}>Mode Maintenance</span>
+                                        <span className={styles.switchDesc}>Désactiver l'accès client pour maintenance.</span>
                                     </div>
                                     <label className={styles.switch}>
                                         <input
@@ -266,60 +370,90 @@ const Settings = () => {
                                         <span className={styles.slider}></span>
                                     </label>
                                 </div>
-
-                                {localSettings.system.maintenance_mode && (
-                                    <div className={styles.formGroup}>
-                                        <label className={styles.label}>Message de maintenance</label>
-                                        <textarea
-                                            className={styles.textarea}
-                                            value={localSettings.system.maintenance_message}
-                                            onChange={(e) => handleChange('system', 'maintenance_message', e.target.value)}
-                                        />
-                                    </div>
-                                )}
-
-                                <div className={styles.toggleRow}>
-                                    <div className={styles.toggleInfo}>
-                                        <span className={styles.toggleTitle}>Inscriptions Ouvertes</span>
-                                        <span className={styles.description}>Permet aux nouvelles agences de s'inscrire</span>
-                                    </div>
-                                    <label className={styles.switch}>
-                                        <input
-                                            type="checkbox"
-                                            checked={localSettings.system.registration_open}
-                                            onChange={(e) => handleChange('system', 'registration_open', e.target.checked)}
-                                        />
-                                        <span className={styles.slider}></span>
-                                    </label>
-                                </div>
-
                                 <div className={styles.formGroup}>
-                                    <label className={styles.label}>Alerte Globale (Optionnel)</label>
-                                    <div className="relative">
-                                        <AlertTriangle size={16} className="absolute left-3 top-3 text-orange-400" />
-                                        <textarea
-                                            className={`${styles.textarea} pl-10`}
-                                            placeholder="Ex: Mise à jour prévue ce dimanche à 22h..."
-                                            value={localSettings.system.global_alert || ''}
-                                            onChange={(e) => handleChange('system', 'global_alert', e.target.value)}
-                                        />
-                                    </div>
-                                    <span className={styles.description}>S'affiche sur le dashboard de tous les utilisateurs</span>
+                                    <label className={styles.label}>Alerte Globale</label>
+                                    <textarea
+                                        className={styles.textarea}
+                                        rows={3}
+                                        value={localSettings.system.global_alert || ''}
+                                        onChange={(e) => handleChange('system', 'global_alert', e.target.value)}
+                                        placeholder="Message affiché à tous les utilisateurs..."
+                                    />
                                 </div>
                             </div>
                         </div>
-                    </div>
-                )}
-            </div>
+                    )}
 
-            <div className={styles.saveBar}>
+                    {/* ONGLET APPARENCE */}
+                    {activeTab === 'appearance' && (
+                        <div className={styles.settingsCard}>
+                            <div className={styles.cardHeader}>
+                                <Eye size={18} />
+                                <h3>Personnalisation de l'Interface</h3>
+                            </div>
+                            <div className={styles.cardBody}>
+                                <div className={styles.switchRow}>
+                                    <div className={styles.switchInfo}>
+                                        <span className={styles.switchTitle}>Thème Sombre</span>
+                                        <span className={styles.switchDesc}>Activer le mode nuit.</span>
+                                    </div>
+                                    <button className={styles.themeToggleBtn} onClick={toggleTheme} style={{
+                                        padding: '0.5rem 1rem',
+                                        background: isDark ? '#1e293b' : '#f1f5f9',
+                                        borderRadius: '8px',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '0.5rem',
+                                        fontWeight: 'bold',
+                                        border: '1px solid var(--border-medium)'
+                                    }}>
+                                        {isDark ? <Moon size={16} /> : <Sun size={16} />}
+                                        {isDark ? 'Mode Sombre' : 'Mode Clair'}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* ONGLET AUDIT */}
+                    {activeTab === 'audit' && (
+                        <div className={styles.settingsCard}>
+                            <div className={styles.cardHeader}>
+                                <History size={18} />
+                                <h3>Journal d'Audit</h3>
+                            </div>
+                            <div className={styles.cardBody}>
+                                <div className={styles.logList}>
+                                    {localSettings.audit_logs.map(log => (
+                                        <div key={log.id} className={styles.logItem}>
+                                            <div>
+                                                <span className={styles.logUser}>{log.user}</span>
+                                                <span className="mx-2 text-gray-400">•</span>
+                                                <span className={styles.logAction}>{log.action}</span>
+                                            </div>
+                                            <span className={styles.logTime}>
+                                                {new Date(log.timestamp).toLocaleTimeString('fr-FR')}
+                                            </span>
+                                        </div>
+                                    ))}
+                                </div>
+                                <p className={styles.helpText}>Seuls les 50 derniers événements sont affichés ici.</p>
+                            </div>
+                        </div>
+                    )}
+
+                </main>
+            </div >
+
+            {/* Sticky Save Bar */}
+            < div className={styles.saveBar} >
                 <button
                     className={styles.btnReset}
                     onClick={handleReset}
                     disabled={saving}
                 >
-                    <RotateCcw size={18} className="inline mr-2" />
-                    Annuler
+                    <RotateCcw size={18} />
+                    Réinitialiser
                 </button>
                 <button
                     className={styles.btnSave}
@@ -333,8 +467,8 @@ const Settings = () => {
                         </>
                     )}
                 </button>
-            </div>
-        </div>
+            </div >
+        </div >
     );
 };
 

@@ -107,7 +107,7 @@
 }
 
 .agency-detail__edit-btn {
-    background: white;
+    background: var(--bg-primary);
     color: var(--primary-600);
     border: none;
     padding: 0.625rem 1.25rem;

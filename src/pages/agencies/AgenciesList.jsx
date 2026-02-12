@@ -22,6 +22,7 @@ import { AGENCY_STATUS_LABELS } from '../../utils/constants';
 import { formatCurrency, formatDate } from '../../utils/formatters';
 import Button from '../../components/common/Button';
 import Badge from '../../components/common/Badge';
+import ConfirmModal from '../../components/common/ConfirmModal/ConfirmModal';
 import styles from './AgenciesList.module.css';
 
 function AgenciesList() {
@@ -36,6 +37,7 @@ function AgenciesList() {
         sortBy: 'nom',
         sortOrder: 'asc'
     });
+    const [deleteModal, setDeleteModal] = useState({ open: false, agencyId: null, agencyName: '' });
 
     // Stats calculées
     const stats = {
@@ -87,15 +89,22 @@ function AgenciesList() {
         setOpenMenuId(null);
     };
 
-    const handleDelete = async (agency) => {
-        if (window.confirm(`Êtes-vous sûr de vouloir supprimer l'agence "${agency.nom}" ?`)) {
-            try {
-                await deleteAgency(agency.id);
-                loadAgencies();
-            } catch (error) {
-                console.error('Erreur suppression:', error);
-            }
+    const confirmDelete = async () => {
+        try {
+            await deleteAgency(deleteModal.agencyId);
+            setDeleteModal({ open: false, agencyId: null, agencyName: '' });
+            loadAgencies();
+        } catch (error) {
+            console.error('Erreur suppression:', error);
         }
+    };
+
+    const handleDeleteClick = (agency) => {
+        setDeleteModal({
+            open: true,
+            agencyId: agency.id,
+            agencyName: agency.nom
+        });
         setOpenMenuId(null);
     };
 
@@ -118,19 +127,27 @@ function AgenciesList() {
     };
 
     return (
-        <div className={styles.agencies}>
-            {/* Header with Gradient */}
-            <div className={styles.agencies__header}>
-                <div className={styles['agencies__header-content']}>
-                    <h1 className={styles.agencies__title}>Gestion des Agences</h1>
-                    <p className={styles.agencies__subtitle}>
-                        Gérez les agences de transport partenaires
-                    </p>
+        <div className={styles.enterprise_container}>
+            <header className={styles.agencies_header_pro}>
+                <div className={styles.header_main}>
+                    <div className={styles.greeting_row}>
+                        <h1>Gestion des Agences</h1>
+                        <div className={styles.status_badge_compact}>
+                            <span className={styles.status_dot}></span>
+                            <span className={styles.status_text}>Partenariats Actifs</span>
+                        </div>
+                    </div>
+                    <span className={styles.date_display}>
+                        {new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+                    </span>
                 </div>
-                <Button icon={Plus} onClick={() => navigate('/agencies/new')}>
-                    Nouvelle agence
-                </Button>
-            </div>
+                <div className={styles.global_actions}>
+                    <button className={styles.btn_primary_pro} onClick={() => navigate('/agencies/new')}>
+                        <Plus size={16} />
+                        <span>Nouvelle Agence</span>
+                    </button>
+                </div>
+            </header>
 
             {/* Stats Cards */}
             <div className={styles.agencies__stats}>
@@ -172,56 +189,64 @@ function AgenciesList() {
                 </div>
             </div>
 
-            {/* Filters */}
-            <div className={styles.agencies__filters}>
-                <div className={styles.agencies__search}>
-                    <Search size={18} className={styles['agencies__search-icon']} />
+            <div className={styles.agencies_filters_pro}>
+                <div className={styles.search_group_pro}>
+                    <Search size={18} className={styles.search_icon_pro} />
                     <input
                         type="text"
-                        placeholder="Rechercher une agence..."
-                        className={styles['agencies__search-input']}
+                        placeholder="Rechercher une agence, adresse ou téléphone..."
+                        className={styles.search_input_pro}
                         value={filters.search}
                         onChange={handleSearchChange}
                     />
                 </div>
 
-                <select
-                    className={styles['agencies__filter-select']}
-                    value={filters.statut}
-                    onChange={handleStatusChange}
-                >
-                    <option value="">Tous les statuts</option>
-                    {Object.entries(AGENCY_STATUS_LABELS).map(([value, label]) => (
-                        <option key={value} value={value}>{label}</option>
-                    ))}
-                </select>
+                <div className={styles.filter_group_pro}>
+                    <select
+                        className={styles.select_compact}
+                        value={filters.statut}
+                        onChange={handleStatusChange}
+                    >
+                        <option value="">Tous les statuts</option>
+                        {Object.entries(AGENCY_STATUS_LABELS).map(([value, label]) => (
+                            <option key={value} value={value}>{label}</option>
+                        ))}
+                    </select>
+                </div>
             </div>
 
             {/* Table */}
-            <div className={styles['agencies__table-container']}>
-                {loading ? (
-                    <div className={styles.agencies__loading}>
-                        Chargement des agences...
-                    </div>
-                ) : agencies.length === 0 ? (
-                    <div className={styles.agencies__empty}>
-                        <div className={styles['agencies__empty-icon']}>
-                            <Building2 size={32} />
+            <div className={styles.agencies_table_panel_pro}>
+                <div className={styles.table_scroll_viewport_pro}>
+                    {loading ? (
+                        <div className={styles.agencies__loading}>
+                            Chargement des agences...
                         </div>
-                        <p>Aucune agence trouvée</p>
-                    </div>
-                ) : (
-                    <div className={styles['agencies__table-wrapper']}>
-                        <table className={styles.agencies__table}>
+                    ) : agencies.length === 0 ? (
+                        <div className={styles.empty_state_container_pro}>
+                            <div className={styles.empty_state_icon_pro}>
+                                <Search size={40} />
+                            </div>
+                            <h3>Aucune agence trouvée</h3>
+                            <p>Nous n'avons trouvé aucun partenaire correspondant à "<strong>{filters.search || 'votre recherche'}</strong>".</p>
+                            <button
+                                className={styles.reset_filters_btn_pro}
+                                onClick={() => setFilters({ search: '', statut: '', sortBy: 'nom', sortOrder: 'asc' })}
+                            >
+                                Réinitialiser les filtres
+                            </button>
+                        </div>
+                    ) : (
+                        <table className={styles.agencies_table_pro}>
                             <thead>
                                 <tr>
-                                    <th>Agence</th>
-                                    <th>Contact</th>
-                                    <th>Statut</th>
-                                    <th>Véhicules</th>
-                                    <th>Voyages/mois</th>
-                                    <th>Revenus/mois</th>
-                                    <th>Note</th>
+                                    <th>Partenaire Agence</th>
+                                    <th>Information Contact</th>
+                                    <th>État</th>
+                                    <th>Flotte</th>
+                                    <th>Performance</th>
+                                    <th>Revenus</th>
+                                    <th>Rating</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
@@ -229,49 +254,41 @@ function AgenciesList() {
                                 {agencies.map(agency => (
                                     <tr key={agency.id}>
                                         <td>
-                                            <div className={styles['agencies__name-cell']}>
-                                                <div className={styles['agencies__avatar']}>
+                                            <div className={styles.agency_identity_cell}>
+                                                <div className={styles.agencies__avatar}>
                                                     <Building2 size={20} />
                                                 </div>
-                                                <div className={styles['agencies__name-info']}>
-                                                    <span className={styles.agencies__name}>{agency.nom}</span>
-                                                    <span className={styles.agencies__address}>{agency.adresse}</span>
+                                                <div className={styles.agency_meta_info}>
+                                                    <span className={styles.agency_full_name}>{agency.nom}</span>
+                                                    <span className={styles.agency_address_sub}>{agency.adresse}</span>
                                                 </div>
                                             </div>
                                         </td>
                                         <td>
-                                            <div className={styles['agencies__contact-cell']}>
-                                                <div className={styles['agencies__contact-icon']}>
-                                                    <Phone size={16} />
-                                                </div>
-                                                <div className={styles['agencies__contact-info']}>
-                                                    <span className={styles.agencies__phone}>
-                                                        {agency.telephone}
-                                                    </span>
-                                                    <span className={styles.agencies__email}>{agency.email}</span>
-                                                </div>
+                                            <div className={styles.agency_meta_info}>
+                                                <span className={styles.mono_text}>{agency.telephone}</span>
+                                                <span className={styles.agency_address_sub}>{agency.email}</span>
                                             </div>
                                         </td>
                                         <td>
-                                            <Badge variant={getStatusVariant(agency.statut)} dot>
+                                            <div className={styles[`status_pill_${getStatusVariant(agency.statut)}`]}>
                                                 {AGENCY_STATUS_LABELS[agency.statut]}
-                                            </Badge>
-                                        </td>
-                                        <td>
-                                            <div className={styles['agencies__vehicles']}>
-                                                <Bus size={16} />
-                                                <span>{agency.nombre_vehicules}</span>
                                             </div>
                                         </td>
                                         <td>
-                                            <div className={styles['agencies__trips']}>
-                                                <TrendingUp size={14} />
-                                                <span>{agency.nombre_voyages_mois}</span>
+                                            <div className={styles.mono_text}>
+                                                <Bus size={14} style={{ marginRight: '4px' }} />
+                                                {agency.nombre_vehicules}
                                             </div>
                                         </td>
                                         <td>
-                                            <span className={styles['agencies__revenue']}>
-                                                <DollarSign size={14} />
+                                            <div className={styles.mono_text}>
+                                                <TrendingUp size={14} style={{ marginRight: '4px' }} />
+                                                {agency.nombre_voyages_mois}
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span className={styles.revenue_cell_pro}>
                                                 {formatCurrency(agency.revenus_mois)}
                                             </span>
                                         </td>
@@ -283,56 +300,40 @@ function AgenciesList() {
                                                     {agency.note_moyenne.toFixed(1)}
                                                 </div>
                                             ) : (
-                                                <span className={styles['agencies__no-rating']}>—</span>
+                                                <span className={styles.agency_address_sub}>—</span>
                                             )}
                                         </td>
                                         <td>
-                                            <div className={styles.agencies__actions}>
+                                            <div className={styles.agency_actions_pro}>
                                                 <button
-                                                    className={`${styles['agencies__action-btn']} ${styles['agencies__action-btn--view']}`}
+                                                    className={styles.action_btn_pro}
                                                     onClick={() => navigate(`/agencies/${agency.id}`)}
                                                     title="Voir détails"
                                                 >
                                                     <Eye size={16} />
                                                 </button>
                                                 <button
-                                                    className={`${styles['agencies__action-btn']} ${styles['agencies__action-btn--edit']}`}
+                                                    className={styles.action_btn_pro}
                                                     onClick={() => navigate(`/agencies/${agency.id}/edit`)}
                                                     title="Modifier"
                                                 >
                                                     <Edit size={16} />
                                                 </button>
-                                                <div className={styles['agencies__dropdown-wrapper']} ref={openMenuId === agency.id ? menuRef : null}>
+                                                <div className={styles.relative} ref={openMenuId === agency.id ? menuRef : null}>
                                                     <button
-                                                        className={`${styles['agencies__action-btn']} ${styles['agencies__action-btn--more']} ${openMenuId === agency.id ? styles['agencies__action-btn--active'] : ''}`}
+                                                        className={`${styles.action_btn_pro} ${openMenuId === agency.id ? styles.active : ''}`}
                                                         onClick={() => toggleMenu(agency.id)}
-                                                        title="Plus d'options"
                                                     >
                                                         <MoreVertical size={16} />
                                                     </button>
                                                     {openMenuId === agency.id && (
-                                                        <div className={styles['agencies__dropdown']}>
-                                                            <button
-                                                                className={styles['agencies__dropdown-item']}
-                                                                onClick={() => handleStatusToggle(agency)}
-                                                            >
-                                                                {agency.statut === 'actif' ? (
-                                                                    <>
-                                                                        <XCircle size={16} />
-                                                                        Suspendre
-                                                                    </>
-                                                                ) : (
-                                                                    <>
-                                                                        <CheckCircle size={16} />
-                                                                        Activer
-                                                                    </>
-                                                                )}
+                                                        <div className={styles.dropdown_pro}>
+                                                            <button onClick={() => handleStatusToggle(agency)}>
+                                                                {agency.statut === 'actif' ? <XCircle size={14} /> : <CheckCircle size={14} />}
+                                                                {agency.statut === 'actif' ? 'Suspendre' : 'Activer'}
                                                             </button>
-                                                            <button
-                                                                className={`${styles['agencies__dropdown-item']} ${styles['agencies__dropdown-item--danger']}`}
-                                                                onClick={() => handleDelete(agency)}
-                                                            >
-                                                                <Trash2 size={16} />
+                                                            <button className={styles.danger} onClick={() => handleDeleteClick(agency)}>
+                                                                <Trash2 size={14} />
                                                                 Supprimer
                                                             </button>
                                                         </div>
@@ -344,9 +345,18 @@ function AgenciesList() {
                                 ))}
                             </tbody>
                         </table>
-                    </div>
-                )}
+                    )}
+                </div>
             </div>
+
+            <ConfirmModal
+                isOpen={deleteModal.open}
+                onClose={() => setDeleteModal({ open: false, agencyId: null, agencyName: '' })}
+                onConfirm={confirmDelete}
+                title="Supprimer l'agence"
+                message={`Êtes-vous sûr de vouloir supprimer définitivement l'agence "${deleteModal.agencyName}" ? Cette action supprimera tous les voyages associés.`}
+                confirmLabel="Supprimer définitivement"
+            />
         </div>
     );
 }

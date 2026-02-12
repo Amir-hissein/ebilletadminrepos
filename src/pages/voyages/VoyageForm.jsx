@@ -1,29 +1,22 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import {
-    ArrowLeft,
-    MapPin,
-    ArrowRight,
-    Bus,
-    Plane,
-    Calendar,
-    Clock,
-    Users,
-    DollarSign,
-    Save,
-    Building2
+    ArrowLeft, MapPin, ArrowRight, Bus, Plane,
+    Calendar, Clock, Users, DollarSign, Save,
+    Building2, Info, CheckCircle, AlertCircle, Hash
 } from 'lucide-react';
-import { createVoyage, getVilles } from '../../api/voyages.api';
+import { getVoyages, getVoyageById, createVoyage, updateVoyage, getVilles } from '../../api/voyages.api';
 import { getAgencies } from '../../api/agencies.api';
 import { TRANSPORT_TYPES } from '../../utils/constants';
 import { formatCurrency } from '../../utils/formatters';
 import Button from '../../components/common/Button';
-import Card from '../../components/common/Card';
 import styles from './VoyageForm.module.css';
 
-function VoyageForm() {
+const VoyageForm = () => {
+    const { id } = useParams();
     const navigate = useNavigate();
-    const [loading, setLoading] = useState(false);
+    const isEdit = Boolean(id);
+    const [loading, setLoading] = useState(isEdit);
     const [villes, setVilles] = useState([]);
     const [agences, setAgences] = useState([]);
     const [errors, setErrors] = useState({});
@@ -44,19 +37,39 @@ function VoyageForm() {
     });
 
     useEffect(() => {
-        loadData();
-    }, []);
+        loadInitialData();
+    }, [id]);
 
-    const loadData = async () => {
+    const loadInitialData = async () => {
         try {
             const [villesResult, agencesResult] = await Promise.all([
                 getVilles({ actif: true }),
                 getAgencies({ statut: 'active' })
             ]);
-            setVilles(villesResult.data);
-            setAgences(agencesResult.data);
+            setVilles(villesResult.data || []);
+            setAgences(agencesResult.data || []);
+
+            if (isEdit) {
+                const voyage = await getVoyageById(id);
+                setFormData({
+                    agence_id: voyage.agence_id.toString(),
+                    ville_depart_id: voyage.ville_depart_id.toString(),
+                    ville_arrivee_id: voyage.ville_arrivee_id.toString(),
+                    date_depart: voyage.date_depart,
+                    heure_depart: voyage.heure_depart,
+                    date_arrivee: voyage.date_arrivee || voyage.date_depart,
+                    heure_arrivee: voyage.heure_arrivee || '',
+                    prix_unitaire: voyage.prix_unitaire.toString(),
+                    places_totales: voyage.places_totales.toString(),
+                    type_transport: voyage.type_transport,
+                    numero_vol_bus: voyage.numero_vol_bus || '',
+                    description: voyage.description || ''
+                });
+            }
         } catch (error) {
             console.error('Erreur chargement données:', error);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -76,21 +89,21 @@ function VoyageForm() {
         const newErrors = {};
 
         if (!formData.agence_id) newErrors.agence_id = 'Sélectionnez une agence';
-        if (!formData.ville_depart_id) newErrors.ville_depart_id = 'Sélectionnez la ville de départ';
-        if (!formData.ville_arrivee_id) newErrors.ville_arrivee_id = 'Sélectionnez la ville d\'arrivée';
+        if (!formData.ville_depart_id) newErrors.ville_depart_id = 'Ville de départ requise';
+        if (!formData.ville_arrivee_id) newErrors.ville_arrivee_id = 'Ville d\'arrivée requise';
         if (formData.ville_depart_id === formData.ville_arrivee_id && formData.ville_depart_id) {
-            newErrors.ville_arrivee_id = 'La ville d\'arrivée doit être différente du départ';
+            newErrors.ville_arrivee_id = 'Ville d\'arrivée doit être différente';
         }
-        if (!formData.date_depart) newErrors.date_depart = 'Date de départ requise';
-        if (!formData.heure_depart) newErrors.heure_depart = 'Heure de départ requise';
+        if (!formData.date_depart) newErrors.date_depart = 'Date requise';
+        if (!formData.heure_depart) newErrors.heure_depart = 'Heure requise';
         if (!formData.prix_unitaire || parseFloat(formData.prix_unitaire) <= 0) {
-            newErrors.prix_unitaire = 'Prix unitaire invalide';
+            newErrors.prix_unitaire = 'Prix invalide';
         }
         if (!formData.places_totales || parseInt(formData.places_totales) <= 0) {
-            newErrors.places_totales = 'Nombre de places invalide';
+            newErrors.places_totales = 'Places invalides';
         }
         if (!formData.numero_vol_bus.trim()) {
-            newErrors.numero_vol_bus = 'Numéro de vol/bus requis';
+            newErrors.numero_vol_bus = 'Référence requise';
         }
 
         setErrors(newErrors);
@@ -111,330 +124,270 @@ function VoyageForm() {
                 prix_unitaire: parseFloat(formData.prix_unitaire),
                 places_totales: parseInt(formData.places_totales)
             };
-            await createVoyage(voyageData);
+
+            if (isEdit) {
+                await updateVoyage(id, voyageData);
+            } else {
+                await createVoyage(voyageData);
+            }
             navigate('/voyages');
         } catch (error) {
-            console.error('Erreur création voyage:', error);
-            setErrors({ submit: 'Une erreur est survenue' });
+            console.error('Erreur sauvegarde voyage:', error);
+            setErrors({ submit: 'Une erreur est survenue lors de la sauvegarde' });
         } finally {
             setLoading(false);
         }
     };
 
-    // Calcul du résumé
     const prixUnitaire = parseFloat(formData.prix_unitaire) || 0;
     const placesTotales = parseInt(formData.places_totales) || 0;
     const potentielTotal = prixUnitaire * placesTotales;
-    const commission = potentielTotal * 0.1; // 10% commission plateforme
+    const commission = potentielTotal * 0.1;
 
     return (
-        <div className={styles['voyage-form']}>
-            {/* Header */}
-            <div className={styles['voyage-form__header']}>
-                <Button
-                    variant="ghost"
-                    icon={ArrowLeft}
-                    onClick={() => navigate('/voyages')}
-                />
-                <h1 className={styles['voyage-form__title']}>Nouveau Voyage</h1>
-            </div>
+        <div className={`fade-in ${styles.voyage_form_pro}`}>
+            {/* Header Pro */}
+            <header className={styles.form_header_pro}>
+                <div className={styles.header_content}>
+                    <button onClick={() => navigate('/voyages')} className={styles.back_pill}>
+                        <ArrowLeft size={16} />
+                        <span>Voyages</span>
+                    </button>
+                    <h1>{isEdit ? 'Modifier le trajet' : 'Planifier un nouveau trajet'}</h1>
+                    <p>{isEdit ? 'Mettez à jour les détails du transport et du trajet' : 'Configurez les détails du transport, l\'itinéraire et la tarification.'}</p>
+                </div>
+            </header>
 
-            <form onSubmit={handleSubmit}>
-                <Card>
-                    <Card.Body>
-                        {/* Section Agence */}
-                        <div className={styles['voyage-form__section']}>
-                            <h2 className={styles['voyage-form__section-title']}>
-                                <Building2 size={20} style={{ marginRight: '8px' }} />
-                                Agence Organisatrice
-                            </h2>
-
-                            <div className={styles['voyage-form__field']}>
-                                <label className={`${styles['voyage-form__label']} ${styles['voyage-form__label--required']}`}>
-                                    Agence
-                                </label>
-                                <select
-                                    name="agence_id"
-                                    className={`${styles['voyage-form__select']} ${errors.agence_id ? styles['voyage-form__select--error'] : ''}`}
-                                    value={formData.agence_id}
-                                    onChange={handleChange}
-                                >
-                                    <option value="">Sélectionner une agence</option>
-                                    {agences.map(agence => (
-                                        <option key={agence.id} value={agence.id}>
-                                            {agence.nom} - {agence.ville}
-                                        </option>
-                                    ))}
-                                </select>
-                                {errors.agence_id && <span className={styles['voyage-form__error']}>{errors.agence_id}</span>}
+            <form onSubmit={handleSubmit} className={styles.form_container_pro}>
+                <div className={styles.form_grid_pro}>
+                    {/* Left Column: Config & Route */}
+                    <div className={styles.main_column}>
+                        {/* Configuration Card */}
+                        <div className={styles.form_card_pro}>
+                            <div className={styles.card_header}>
+                                <div className={styles.icon_box}><Building2 size={20} /></div>
+                                <h3>Configuration Générale</h3>
                             </div>
-                        </div>
-
-                        {/* Section Trajet */}
-                        <div className={styles['voyage-form__section']}>
-                            <h2 className={styles['voyage-form__section-title']}>
-                                <MapPin size={20} style={{ marginRight: '8px' }} />
-                                Trajet
-                            </h2>
-
-                            <div className={styles['voyage-form__route']}>
-                                <div className={styles['voyage-form__route-field']}>
-                                    <div className={styles['voyage-form__field']}>
-                                        <label className={`${styles['voyage-form__label']} ${styles['voyage-form__label--required']}`}>
-                                            Ville de départ
-                                        </label>
+                            <div className={styles.card_body}>
+                                <div className={styles.field_group_pro}>
+                                    <label>Agence organisatrice</label>
+                                    <div className={styles.select_wrapper}>
+                                        <Building2 className={styles.field_icon} size={18} />
                                         <select
-                                            name="ville_depart_id"
-                                            className={`${styles['voyage-form__select']} ${errors.ville_depart_id ? styles['voyage-form__select--error'] : ''}`}
-                                            value={formData.ville_depart_id}
+                                            name="agence_id"
+                                            value={formData.agence_id}
                                             onChange={handleChange}
+                                            className={errors.agence_id ? styles.input_error : ''}
                                         >
-                                            <option value="">Sélectionner</option>
-                                            {villes.map(ville => (
-                                                <option key={ville.id} value={ville.id}>{ville.nom}</option>
+                                            <option value="">Sélectionner une agence</option>
+                                            {agences.map(agence => (
+                                                <option key={agence.id} value={agence.id}>{agence.nom}</option>
                                             ))}
                                         </select>
-                                        {errors.ville_depart_id && <span className={styles['voyage-form__error']}>{errors.ville_depart_id}</span>}
                                     </div>
+                                    {errors.agence_id && <span className={styles.error_text}>{errors.agence_id}</span>}
                                 </div>
 
-                                <ArrowRight size={24} className={styles['voyage-form__route-arrow']} />
-
-                                <div className={styles['voyage-form__route-field']}>
-                                    <div className={styles['voyage-form__field']}>
-                                        <label className={`${styles['voyage-form__label']} ${styles['voyage-form__label--required']}`}>
-                                            Ville d'arrivée
-                                        </label>
-                                        <select
-                                            name="ville_arrivee_id"
-                                            className={`${styles['voyage-form__select']} ${errors.ville_arrivee_id ? styles['voyage-form__select--error'] : ''}`}
-                                            value={formData.ville_arrivee_id}
-                                            onChange={handleChange}
+                                <div className={styles.transport_selector}>
+                                    <label>Type de transport</label>
+                                    <div className={styles.transport_options}>
+                                        <div
+                                            className={`${styles.transport_card} ${formData.type_transport === TRANSPORT_TYPES.BUS ? styles.active : ''}`}
+                                            onClick={() => handleTransportSelect(TRANSPORT_TYPES.BUS)}
                                         >
-                                            <option value="">Sélectionner</option>
-                                            {villes.map(ville => (
-                                                <option key={ville.id} value={ville.id}>{ville.nom}</option>
-                                            ))}
-                                        </select>
-                                        {errors.ville_arrivee_id && <span className={styles['voyage-form__error']}>{errors.ville_arrivee_id}</span>}
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Type de transport */}
-                            <div className={styles['voyage-form__field']}>
-                                <label className={styles['voyage-form__label']}>Type de transport</label>
-                                <div className={styles['voyage-form__transport-options']}>
-                                    <div
-                                        className={`${styles['voyage-form__transport-card']} ${formData.type_transport === TRANSPORT_TYPES.BUS ? styles['voyage-form__transport-card--selected'] : ''}`}
-                                        onClick={() => handleTransportSelect(TRANSPORT_TYPES.BUS)}
-                                    >
-                                        <div className={styles['voyage-form__transport-icon']}>
                                             <Bus size={24} />
+                                            <span>Bus</span>
+                                            {formData.type_transport === TRANSPORT_TYPES.BUS && <CheckCircle size={14} className={styles.check} />}
                                         </div>
-                                        <span className={styles['voyage-form__transport-name']}>Bus</span>
-                                    </div>
-                                    <div
-                                        className={`${styles['voyage-form__transport-card']} ${formData.type_transport === TRANSPORT_TYPES.PLANE ? styles['voyage-form__transport-card--selected'] : ''}`}
-                                        onClick={() => handleTransportSelect(TRANSPORT_TYPES.PLANE)}
-                                    >
-                                        <div className={styles['voyage-form__transport-icon']}>
+                                        <div
+                                            className={`${styles.transport_card} ${formData.type_transport === TRANSPORT_TYPES.PLANE ? styles.active : ''}`}
+                                            onClick={() => handleTransportSelect(TRANSPORT_TYPES.PLANE)}
+                                        >
                                             <Plane size={24} />
+                                            <span>Avion</span>
+                                            {formData.type_transport === TRANSPORT_TYPES.PLANE && <CheckCircle size={14} className={styles.check} />}
                                         </div>
-                                        <span className={styles['voyage-form__transport-name']}>Avion</span>
                                     </div>
                                 </div>
-                            </div>
 
-                            <div className={styles['voyage-form__row']}>
-                                <div className={styles['voyage-form__field']}>
-                                    <label className={`${styles['voyage-form__label']} ${styles['voyage-form__label--required']}`}>
-                                        Numéro de {formData.type_transport === TRANSPORT_TYPES.PLANE ? 'vol' : 'bus'}
-                                    </label>
-                                    <input
-                                        type="text"
-                                        name="numero_vol_bus"
-                                        className={`${styles['voyage-form__input']} ${errors.numero_vol_bus ? styles['voyage-form__input--error'] : ''}`}
-                                        value={formData.numero_vol_bus}
-                                        onChange={handleChange}
-                                        placeholder={formData.type_transport === TRANSPORT_TYPES.PLANE ? 'AT-201' : 'TE-001'}
-                                    />
-                                    {errors.numero_vol_bus && <span className={styles['voyage-form__error']}>{errors.numero_vol_bus}</span>}
+                                <div className={styles.field_group_pro}>
+                                    <label>N° de {formData.type_transport === TRANSPORT_TYPES.PLANE ? 'vol' : 'bus'}</label>
+                                    <div className={styles.input_wrapper}>
+                                        <Hash className={styles.field_icon} size={18} />
+                                        <input
+                                            type="text"
+                                            name="numero_vol_bus"
+                                            value={formData.numero_vol_bus}
+                                            onChange={handleChange}
+                                            placeholder={formData.type_transport === TRANSPORT_TYPES.PLANE ? 'Ex: AF123' : 'Ex: B-450'}
+                                            className={errors.numero_vol_bus ? styles.input_error : ''}
+                                        />
+                                    </div>
+                                    {errors.numero_vol_bus && <span className={styles.error_text}>{errors.numero_vol_bus}</span>}
                                 </div>
                             </div>
                         </div>
 
-                        {/* Section Horaires */}
-                        <div className={styles['voyage-form__section']}>
-                            <h2 className={styles['voyage-form__section-title']}>
-                                <Calendar size={20} style={{ marginRight: '8px' }} />
-                                Horaires
-                            </h2>
-
-                            <div className={styles['voyage-form__row']}>
-                                <div className={styles['voyage-form__field']}>
-                                    <label className={`${styles['voyage-form__label']} ${styles['voyage-form__label--required']}`}>
-                                        Date de départ
-                                    </label>
-                                    <input
-                                        type="date"
-                                        name="date_depart"
-                                        className={`${styles['voyage-form__input']} ${errors.date_depart ? styles['voyage-form__input--error'] : ''}`}
-                                        value={formData.date_depart}
-                                        onChange={handleChange}
-                                    />
-                                    {errors.date_depart && <span className={styles['voyage-form__error']}>{errors.date_depart}</span>}
-                                </div>
-
-                                <div className={styles['voyage-form__field']}>
-                                    <label className={`${styles['voyage-form__label']} ${styles['voyage-form__label--required']}`}>
-                                        Heure de départ
-                                    </label>
-                                    <input
-                                        type="time"
-                                        name="heure_depart"
-                                        className={`${styles['voyage-form__input']} ${errors.heure_depart ? styles['voyage-form__input--error'] : ''}`}
-                                        value={formData.heure_depart}
-                                        onChange={handleChange}
-                                    />
-                                    {errors.heure_depart && <span className={styles['voyage-form__error']}>{errors.heure_depart}</span>}
-                                </div>
+                        {/* Itinerary Card */}
+                        <div className={styles.form_card_pro}>
+                            <div className={styles.card_header}>
+                                <div className={styles.icon_box}><MapPin size={20} /></div>
+                                <h3>Itinéraire & Horaires</h3>
                             </div>
-
-                            <div className={styles['voyage-form__row']}>
-                                <div className={styles['voyage-form__field']}>
-                                    <label className={styles['voyage-form__label']}>
-                                        Date d'arrivée (estimée)
-                                    </label>
-                                    <input
-                                        type="date"
-                                        name="date_arrivee"
-                                        className={styles['voyage-form__input']}
-                                        value={formData.date_arrivee}
-                                        onChange={handleChange}
-                                    />
+                            <div className={styles.card_body}>
+                                <div className={styles.route_visual}>
+                                    <div className={styles.route_field}>
+                                        <label>Départ</label>
+                                        <div className={styles.select_wrapper}>
+                                            <MapPin className={styles.field_icon} size={18} />
+                                            <select
+                                                name="ville_depart_id"
+                                                value={formData.ville_depart_id}
+                                                onChange={handleChange}
+                                                className={errors.ville_depart_id ? styles.input_error : ''}
+                                            >
+                                                <option value="">Sélectionner</option>
+                                                {villes.map(v => <option key={v.id} value={v.id}>{v.nom}</option>)}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div className={styles.route_arrow}><ArrowRight size={20} /></div>
+                                    <div className={styles.route_field}>
+                                        <label>Arrivée</label>
+                                        <div className={styles.select_wrapper}>
+                                            <MapPin className={styles.field_icon} size={18} />
+                                            <select
+                                                name="ville_arrivee_id"
+                                                value={formData.ville_arrivee_id}
+                                                onChange={handleChange}
+                                                className={errors.ville_arrivee_id ? styles.input_error : ''}
+                                            >
+                                                <option value="">Sélectionner</option>
+                                                {villes.map(v => <option key={v.id} value={v.id}>{v.nom}</option>)}
+                                            </select>
+                                        </div>
+                                    </div>
                                 </div>
 
-                                <div className={styles['voyage-form__field']}>
-                                    <label className={styles['voyage-form__label']}>
-                                        Heure d'arrivée (estimée)
-                                    </label>
-                                    <input
-                                        type="time"
-                                        name="heure_arrivee"
-                                        className={styles['voyage-form__input']}
-                                        value={formData.heure_arrivee}
-                                        onChange={handleChange}
-                                    />
+                                <div className={styles.times_grid}>
+                                    <div className={styles.field_group_pro}>
+                                        <label>Date de départ</label>
+                                        <div className={styles.input_wrapper}>
+                                            <Calendar className={styles.field_icon} size={18} />
+                                            <input
+                                                type="date"
+                                                name="date_depart"
+                                                value={formData.date_depart}
+                                                onChange={handleChange}
+                                                className={errors.date_depart ? styles.input_error : ''}
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className={styles.field_group_pro}>
+                                        <label>Heure de départ</label>
+                                        <div className={styles.input_wrapper}>
+                                            <Clock className={styles.field_icon} size={18} />
+                                            <input
+                                                type="time"
+                                                name="heure_depart"
+                                                value={formData.heure_depart}
+                                                onChange={handleChange}
+                                                className={errors.heure_depart ? styles.input_error : ''}
+                                            />
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
+                    </div>
 
-                        {/* Section Tarification */}
-                        <div className={styles['voyage-form__section']}>
-                            <h2 className={styles['voyage-form__section-title']}>
-                                <DollarSign size={20} style={{ marginRight: '8px' }} />
-                                Tarification & Capacité
-                            </h2>
-
-                            <div className={styles['voyage-form__row']}>
-                                <div className={styles['voyage-form__field']}>
-                                    <label className={`${styles['voyage-form__label']} ${styles['voyage-form__label--required']}`}>
-                                        Prix unitaire (FCFA)
-                                    </label>
-                                    <input
-                                        type="number"
-                                        name="prix_unitaire"
-                                        className={`${styles['voyage-form__input']} ${errors.prix_unitaire ? styles['voyage-form__input--error'] : ''}`}
-                                        value={formData.prix_unitaire}
-                                        onChange={handleChange}
-                                        placeholder="15000"
-                                        min="0"
-                                    />
-                                    {errors.prix_unitaire && <span className={styles['voyage-form__error']}>{errors.prix_unitaire}</span>}
-                                </div>
-
-                                <div className={styles['voyage-form__field']}>
-                                    <label className={`${styles['voyage-form__label']} ${styles['voyage-form__label--required']}`}>
-                                        Nombre de places
-                                    </label>
-                                    <input
-                                        type="number"
-                                        name="places_totales"
-                                        className={`${styles['voyage-form__input']} ${errors.places_totales ? styles['voyage-form__input--error'] : ''}`}
-                                        value={formData.places_totales}
-                                        onChange={handleChange}
-                                        placeholder="50"
-                                        min="1"
-                                    />
-                                    {errors.places_totales && <span className={styles['voyage-form__error']}>{errors.places_totales}</span>}
-                                </div>
+                    {/* Right Column: Pricing & Summary */}
+                    <div className={styles.side_column}>
+                        <div className={styles.form_card_pro}>
+                            <div className={styles.card_header}>
+                                <div className={styles.icon_box}><DollarSign size={20} /></div>
+                                <h3>Tarification</h3>
                             </div>
-
-                            {/* Résumé financier */}
-                            {prixUnitaire > 0 && placesTotales > 0 && (
-                                <div className={styles['voyage-form__summary']}>
-                                    <div className={styles['voyage-form__summary-title']}>
-                                        💰 Potentiel de revenus
+                            <div className={styles.card_body}>
+                                <div className={styles.field_group_pro}>
+                                    <label>Prix unitaire (FCFA)</label>
+                                    <div className={styles.input_wrapper}>
+                                        <DollarSign className={styles.field_icon} size={18} />
+                                        <input
+                                            type="number"
+                                            name="prix_unitaire"
+                                            value={formData.prix_unitaire}
+                                            onChange={handleChange}
+                                            className={errors.prix_unitaire ? styles.input_error : ''}
+                                            placeholder="Ex: 10000"
+                                        />
                                     </div>
-                                    <div className={styles['voyage-form__summary-row']}>
-                                        <span>Total si complet ({placesTotales} × {formatCurrency(prixUnitaire)})</span>
+                                </div>
+                                <div className={styles.field_group_pro}>
+                                    <label>Nombre de places</label>
+                                    <div className={styles.input_wrapper}>
+                                        <Users className={styles.field_icon} size={18} />
+                                        <input
+                                            type="number"
+                                            name="places_totales"
+                                            value={formData.places_totales}
+                                            onChange={handleChange}
+                                            className={errors.places_totales ? styles.input_error : ''}
+                                            placeholder="Ex: 50"
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Financial Summary */}
+                                <div className={styles.finance_summary}>
+                                    <div className={styles.summary_header}>
+                                        <Info size={14} />
+                                        Résumé financier
+                                    </div>
+                                    <div className={styles.summary_row}>
+                                        <span>Potentiel brut</span>
                                         <span>{formatCurrency(potentielTotal)}</span>
                                     </div>
-                                    <div className={styles['voyage-form__summary-row']}>
-                                        <span>Commission plateforme (10%)</span>
-                                        <span>-{formatCurrency(commission)}</span>
+                                    <div className={styles.summary_row}>
+                                        <span>Commission (10%)</span>
+                                        <span className={styles.commission}>-{formatCurrency(commission)}</span>
                                     </div>
-                                    <div className={`${styles['voyage-form__summary-row']} ${styles['voyage-form__summary-total']}`}>
-                                        <span>Revenu net agence</span>
+                                    <div className={styles.summary_total}>
+                                        <span>Revenu Net</span>
                                         <span>{formatCurrency(potentielTotal - commission)}</span>
                                     </div>
                                 </div>
-                            )}
-                        </div>
-
-                        {/* Section Description */}
-                        <div className={styles['voyage-form__section']}>
-                            <div className={styles['voyage-form__field']}>
-                                <label className={styles['voyage-form__label']}>
-                                    Description (optionnel)
-                                </label>
-                                <textarea
-                                    name="description"
-                                    className={styles['voyage-form__textarea']}
-                                    value={formData.description}
-                                    onChange={handleChange}
-                                    placeholder="Informations supplémentaires sur le voyage..."
-                                />
                             </div>
                         </div>
 
-                        {/* Error global */}
-                        {errors.submit && (
-                            <div style={{ color: 'var(--danger-500)', marginBottom: '16px', textAlign: 'center' }}>
-                                {errors.submit}
+                        <div className={styles.form_card_pro}>
+                            <div className={styles.card_body}>
+                                <div className={styles.form_actions}>
+                                    <button
+                                        type="button"
+                                        className={styles.btn_secondary}
+                                        onClick={() => navigate('/voyages')}
+                                    >
+                                        Annuler
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        className={styles.btn_primary}
+                                        disabled={loading}
+                                    >
+                                        {loading ? 'Sauvegarde...' : <><Save size={18} /> {isEdit ? 'Enregistrer les modifications' : 'Créer le voyage'}</>}
+                                    </button>
+                                </div>
+                                {errors.submit && (
+                                    <div className={styles.error_banner}>
+                                        <AlertCircle size={14} />
+                                        {errors.submit}
+                                    </div>
+                                )}
                             </div>
-                        )}
-
-                        {/* Actions */}
-                        <div className={styles['voyage-form__actions']}>
-                            <Button
-                                type="button"
-                                variant="secondary"
-                                onClick={() => navigate('/voyages')}
-                            >
-                                Annuler
-                            </Button>
-                            <Button
-                                type="submit"
-                                icon={Save}
-                                loading={loading}
-                            >
-                                Créer le voyage
-                            </Button>
                         </div>
-                    </Card.Body>
-                </Card>
+                    </div>
+                </div>
             </form>
         </div>
     );

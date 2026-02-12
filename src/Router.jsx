@@ -107,6 +107,10 @@ const router = createBrowserRouter([
                 path: 'voyages/:id',
                 element: <VoyageDetail />
             },
+            {
+                path: 'voyages/:id/edit',
+                element: <VoyageForm />
+            },
             // Ancienne route trips redirige vers voyages
             {
                 path: 'trips',

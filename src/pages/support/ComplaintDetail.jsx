@@ -2,11 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
     ArrowLeft, User, MapPin, Calendar, CreditCard,
-    AlertTriangle, CheckCircle, Clock, MessageSquare
+    AlertTriangle, CheckCircle, Clock, MessageSquare, X,
+    Shield, Briefcase, FileText, ExternalLink, Hash
 } from 'lucide-react';
 import { getComplaintById, updateComplaint } from '../../api/complaints.api';
 import { formatDate, formatCurrency } from '../../utils/formatters';
 import Badge from '../../components/common/Badge';
+import ConfirmModal from '../../components/common/ConfirmModal/ConfirmModal';
 import styles from './Support.module.css';
 
 const ComplaintDetail = () => {
@@ -16,6 +18,7 @@ const ComplaintDetail = () => {
     const [loading, setLoading] = useState(true);
     const [resolution, setResolution] = useState('');
     const [saving, setSaving] = useState(false);
+    const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
 
     useEffect(() => {
         loadData();
@@ -34,9 +37,33 @@ const ComplaintDetail = () => {
         }
     };
 
+    const handleTakeCharge = async () => {
+        setSaving(true);
+        try {
+            await updateComplaint(id, { statut: 'en_traitement' });
+            await loadData();
+        } catch (error) {
+            console.error('Erreur prise en charge:', error);
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const handleCancel = async () => {
+        setSaving(true);
+        try {
+            await updateComplaint(id, { statut: 'annulee' });
+            await loadData();
+            setIsCancelModalOpen(false);
+        } catch (error) {
+            console.error('Erreur annulation:', error);
+        } finally {
+            setSaving(false);
+        }
+    };
+
     const handleResolve = async () => {
         if (!resolution.trim()) return;
-
         setSaving(true);
         try {
             await updateComplaint(id, {
@@ -44,7 +71,6 @@ const ComplaintDetail = () => {
                 statut: 'resolue',
                 date_resolution: new Date().toISOString()
             });
-            // Recharger pour voir les mises à jour
             await loadData();
         } catch (error) {
             console.error('Erreur résolution:', error);
@@ -54,170 +80,244 @@ const ComplaintDetail = () => {
         }
     };
 
-    if (loading) return <div className="p-8 text-center text-gray-500">Chargement...</div>;
-    if (!complaint) return <div className="p-8 text-center text-red-500">Plainte introuvable</div>;
+    if (loading) return (
+        <div className={styles.loading_container}>
+            <div className={styles.loader}></div>
+            <p>Chargement du dossier de support...</p>
+        </div>
+    );
+
+    if (!complaint) return (
+        <div className={styles.error_container}>
+            <AlertTriangle size={48} />
+            <h2>Dossier introuvable</h2>
+            <button onClick={() => navigate('/support')} className={styles.action_btn_pro}>
+                Retour au centre de support
+            </button>
+        </div>
+    );
+
+    const getStatusType = (status) => {
+        switch (status) {
+            case 'ouverte': return 'danger';
+            case 'en_traitement': return 'warning';
+            case 'resolue': return 'success';
+            case 'annulee': return 'neutral';
+            default: return 'neutral';
+        }
+    };
 
     return (
-        <div className="fade-in max-w-6xl mx-auto">
-            <button
-                onClick={() => navigate('/support')}
-                className="flex items-center gap-2 text-gray-500 hover:text-gray-900 mb-6 transition-colors"
-                title="Retour à la liste"
-            >
-                <ArrowLeft size={20} />
-                Retour aux plaintes
-            </button>
-
-            <div className={styles.detailHeader}>
-                <div>
-                    <div className="flex items-center gap-3 mb-2">
-                        <span className="text-sm text-gray-500">#{complaint.id}</span>
-                        <Badge variant={
-                            complaint.statut === 'ouverte' ? 'danger' :
-                                complaint.statut === 'en_traitement' ? 'warning' : 'success'
-                        }>
+        <div className={`fade-in ${styles.support_detail_enterprise}`}>
+            {/* Header Pro */}
+            <header className={styles.detail_header_pro}>
+                <div className={styles.header_left}>
+                    <button onClick={() => navigate('/support')} className={styles.back_pill}>
+                        <ArrowLeft size={16} />
+                        <span>Support</span>
+                    </button>
+                    <div className={styles.title_row}>
+                        <div className={styles.id_badge}>#{complaint.id}</div>
+                        <h1>{complaint.type_plainte}</h1>
+                        <Badge type={getStatusType(complaint.statut)}>
                             {complaint.statut === 'ouverte' ? 'Ouverte' :
-                                complaint.statut === 'en_traitement' ? 'En Traitement' : 'Résolue'}
-                        </Badge>
-                        <Badge variant={
-                            complaint.priorite === 'haute' ? 'danger' :
-                                complaint.priorite === 'moyenne' ? 'warning' : 'info'
-                        }>
-                            Priorité {complaint.priorite}
+                                complaint.statut === 'en_traitement' ? 'En Traitement' :
+                                    complaint.statut === 'resolue' ? 'Résolue' : 'Annulée'}
                         </Badge>
                     </div>
-                    <h1 className="text-2xl font-bold text-gray-900 mb-2">
-                        {complaint.type_plainte.charAt(0).toUpperCase() + complaint.type_plainte.slice(1)}
-                    </h1>
-                    <p className="text-gray-500">
-                        Ouverte le {formatDate(complaint.created_at)}
-                    </p>
                 </div>
-            </div>
 
-            <div className={styles.detailGrid}>
-                {/* Colonne Principale */}
-                <div>
-                    <div className={styles.infoCard}>
-                        <h2 className={styles.sectionTitle}>
-                            <MessageSquare size={20} />
-                            Description du problème
-                        </h2>
-                        <p className="text-gray-700 leading-relaxed bg-gray-50 p-4 rounded-lg border border-gray-100">
-                            "{complaint.description}"
-                        </p>
-                    </div>
+                <div className={styles.header_actions_pro}>
+                    {complaint.statut === 'ouverte' && (
+                        <button
+                            className={styles.btn_primary_pro}
+                            onClick={handleTakeCharge}
+                            disabled={saving}
+                        >
+                            <Clock size={16} />
+                            Prendre en charge
+                        </button>
+                    )}
+                    {complaint.statut !== 'resolue' && complaint.statut !== 'annulee' && (
+                        <button
+                            className={styles.btn_danger_ghost}
+                            onClick={() => setIsCancelModalOpen(true)}
+                            disabled={saving}
+                            title="Annuler le dossier"
+                        >
+                            <X size={18} />
+                        </button>
+                    )}
+                </div>
+            </header>
 
-                    <div className={styles.infoCard}>
-                        <h2 className={styles.sectionTitle}>
-                            <CheckCircle size={20} />
-                            Résolution
-                        </h2>
-                        {complaint.statut === 'resolue' ? (
-                            <div className="bg-green-50 p-4 rounded-lg border border-green-100">
-                                <p className="text-green-800 mb-2 font-medium">Résolue le {formatDate(complaint.date_resolution)}</p>
-                                <p className="text-gray-700">{complaint.resolution}</p>
+            <div className={styles.detail_grid_pro}>
+                {/* Left Side: Core Issue & Resolution */}
+                <div className={styles.main_column}>
+                    {/* Complaint Card */}
+                    <div className={styles.info_card_pro}>
+                        <div className={styles.card_header_pro}>
+                            <div className={styles.icon_box_pro}>
+                                <MessageSquare size={20} />
                             </div>
-                        ) : (
-                            <div className={styles.resolutionBox}>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Note de résolution
-                                </label>
-                                <textarea
-                                    className={styles.resolutionTextarea}
-                                    placeholder="Décrivez les actions prises et la solution..."
-                                    value={resolution}
-                                    onChange={(e) => setResolution(e.target.value)}
-                                />
-                                <div className="flex justify-end">
-                                    <button
-                                        className="btn btn-primary"
-                                        onClick={handleResolve}
-                                        disabled={saving || !resolution.trim()}
-                                    >
-                                        {saving ? 'Enregistrement...' : 'Marquer comme résolue'}
-                                    </button>
+                            <h3>Détails du Litige</h3>
+                            <div className={styles.header_meta}>
+                                <Calendar size={14} />
+                                {formatDate(complaint.created_at)}
+                            </div>
+                        </div>
+                        <div className={styles.card_body_pro}>
+                            <div className={styles.description_pro}>
+                                <p>"{complaint.description}"</p>
+                            </div>
+                            <div className={styles.meta_grid_pro}>
+                                <div className={styles.meta_item_pro}>
+                                    <span className={styles.meta_label}>Priorité</span>
+                                    <div className={`${styles.priority_tag} ${styles[complaint.priorite]}`}>
+                                        {complaint.priorite}
+                                    </div>
+                                </div>
+                                <div className={styles.meta_item_pro}>
+                                    <span className={styles.meta_label}>Type d'entité</span>
+                                    <span className={styles.meta_value}>Dossier Support</span>
                                 </div>
                             </div>
-                        )}
+                        </div>
+                    </div>
+
+                    {/* Resolution Card */}
+                    <div className={`${styles.info_card_pro} ${complaint.statut === 'resolue' ? styles.success_card : ''}`}>
+                        <div className={styles.card_header_pro}>
+                            <div className={styles.icon_box_pro}>
+                                {complaint.statut === 'resolue' ? <CheckCircle size={20} /> : <Shield size={20} />}
+                            </div>
+                            <h3>Résolution & Support</h3>
+                        </div>
+                        <div className={styles.card_body_pro}>
+                            {complaint.statut === 'resolue' ? (
+                                <div className={styles.resolved_content}>
+                                    <div className={styles.resolution_date}>
+                                        <Clock size={14} />
+                                        Résolu le {formatDate(complaint.date_resolution)}
+                                    </div>
+                                    <p className={styles.resolution_text}>{complaint.resolution}</p>
+                                </div>
+                            ) : complaint.statut === 'annulee' ? (
+                                <div className={styles.annulled_content}>
+                                    <AlertTriangle size={20} />
+                                    <p>Ce dossier a été classé sans suite.</p>
+                                </div>
+                            ) : (
+                                <div className={styles.resolution_form}>
+                                    <div className={styles.textarea_wrapper}>
+                                        <label>Note de résolution officielle</label>
+                                        <textarea
+                                            value={resolution}
+                                            onChange={(e) => setResolution(e.target.value)}
+                                            placeholder="Indiquez ici les mesures correctives apportées..."
+                                            disabled={complaint.statut === 'ouverte'}
+                                        />
+                                        {complaint.statut === 'ouverte' && (
+                                            <div className={styles.overlay_message}>
+                                                Veuillez d'abord prendre en charge le dossier
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div className={styles.form_actions}>
+                                        <button
+                                            className={styles.btn_success_pro}
+                                            onClick={handleResolve}
+                                            disabled={saving || !resolution.trim() || complaint.statut === 'ouverte'}
+                                        >
+                                            {saving ? 'Traitement...' : 'Valider la résolution'}
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
 
-                {/* Colonne Latérale */}
-                <div className="flex flex-col gap-6">
-                    {/* Info Client */}
-                    <div className={styles.infoCard}>
-                        <h2 className={styles.sectionTitle}>
-                            <User size={20} />
-                            Client
-                        </h2>
-                        {complaint.client ? (
-                            <div className="flex flex-col gap-3">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold">
+                {/* Right Side: Context & Links */}
+                <div className={styles.side_column}>
+                    {/* Client Info */}
+                    <div className={styles.info_card_pro}>
+                        <div className={styles.card_header_pro}>
+                            <div className={styles.icon_box_pro}>
+                                <User size={20} />
+                            </div>
+                            <h3>Client</h3>
+                        </div>
+                        <div className={styles.card_body_pro}>
+                            {complaint.client ? (
+                                <div className={styles.client_profile}>
+                                    <div className={styles.avatar_pro}>
                                         {complaint.client.nom[0]}
                                     </div>
-                                    <div>
-                                        <div className="font-semibold">{complaint.client.nom} {complaint.client.prenom}</div>
-                                        <div className="text-xs text-gray-500">{complaint.client.email}</div>
+                                    <div className={styles.profile_info}>
+                                        <h4>{complaint.client.nom} {complaint.client.prenom}</h4>
+                                        <p>{complaint.client.email}</p>
+                                        <span className={styles.tel_pro}>{complaint.client.telephone}</span>
                                     </div>
                                 </div>
-                                <div className="border-t border-gray-100 pt-3 mt-1 space-y-2">
-                                    <div className={styles.infoRow}>
-                                        <span className={styles.infoLabel}>Téléphone</span>
-                                        <span className={styles.infoValue}>{complaint.client.telephone}</span>
-                                    </div>
-                                </div>
-                            </div>
-                        ) : (
-                            <p className="text-gray-500 italic">Client introuvable</p>
-                        )}
+                            ) : (
+                                <div className={styles.empty_side}>Aucun client rattaché</div>
+                            )}
+                        </div>
                     </div>
 
-                    {/* Info Réservation */}
+                    {/* Context Table Card */}
                     {complaint.reservation && (
-                        <div className={styles.infoCard}>
-                            <h2 className={styles.sectionTitle}>
-                                <CreditCard size={20} />
-                                Réservation Associée
-                            </h2>
-                            <div className="space-y-3">
-                                <div className="bg-gray-50 p-3 rounded border border-gray-100">
-                                    <div className="text-xs text-gray-500 mb-1">Code Réservation</div>
-                                    <div className="font-mono font-bold text-primary-600">
-                                        {complaint.reservation.numero_reservation}
+                        <div className={styles.info_card_pro}>
+                            <div className={styles.card_header_pro}>
+                                <div className={styles.icon_box_pro}>
+                                    <Hash size={20} />
+                                </div>
+                                <h3>Contexte Détails</h3>
+                            </div>
+                            <div className={styles.card_body_pro}>
+                                <div className={styles.context_list}>
+                                    <div className={styles.context_item}>
+                                        <span className={styles.label}>N° Réservation</span>
+                                        <span className={styles.value_mono}>{complaint.reservation.numero_reservation}</span>
+                                    </div>
+                                    <div className={styles.context_item}>
+                                        <span className={styles.label}>Montant</span>
+                                        <span className={styles.value_bold}>{formatCurrency(complaint.reservation.prix_total)}</span>
+                                    </div>
+                                    <div className={styles.context_item}>
+                                        <span className={styles.label}>Voyage</span>
+                                        <span className={styles.value}>
+                                            {complaint.reservation.voyage?.ville_depart_nom} → {complaint.reservation.voyage?.ville_arrivee_nom}
+                                        </span>
+                                    </div>
+                                    <div className={styles.context_item}>
+                                        <span className={styles.label}>Agence</span>
+                                        <span className={styles.value}>{complaint.agence?.nom || 'Canal Direct'}</span>
                                     </div>
                                 </div>
-                                <div className={styles.infoRow}>
-                                    <span className={styles.infoLabel}>Voyage</span>
-                                    <span className={styles.infoValue}>
-                                        {complaint.reservation.voyage?.ville_depart_nom} → {complaint.reservation.voyage?.ville_arrivee_nom}
-                                    </span>
-                                </div>
-                                <div className={styles.infoRow}>
-                                    <span className={styles.infoLabel}>Date</span>
-                                    <span className={styles.infoValue}>
-                                        {formatDate(complaint.reservation.voyage?.date_depart)}
-                                    </span>
-                                </div>
-                                <div className={styles.infoRow}>
-                                    <span className={styles.infoLabel}>Montant</span>
-                                    <span className={styles.infoValue}>
-                                        {formatCurrency(complaint.reservation.prix_total)}
-                                    </span>
-                                </div>
-                                <div className={styles.infoRow}>
-                                    <span className={styles.infoLabel}>Agence</span>
-                                    <span className={styles.infoValue}>
-                                        {complaint.agence?.nom}
-                                    </span>
-                                </div>
+                                <button
+                                    onClick={() => navigate(`/reservations/${complaint.reservation.id}`)}
+                                    className={styles.view_full_link}
+                                >
+                                    <span>Voir la réservation</span>
+                                    <ExternalLink size={14} />
+                                </button>
                             </div>
                         </div>
                     )}
                 </div>
             </div>
-        </div>
+
+            <ConfirmModal
+                isOpen={isCancelModalOpen}
+                onClose={() => setIsCancelModalOpen(false)}
+                onConfirm={handleCancel}
+                title="Annuler la plainte"
+                message={`Voulez-vous vraiment annuler/rejeter définitivement cette plainte ? Cette action classera le dossier sans suite.`}
+                confirmLabel="Confirmer l'annulation"
+            />
+        </div >
     );
 };
 

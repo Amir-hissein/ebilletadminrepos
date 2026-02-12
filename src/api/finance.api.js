@@ -77,6 +77,15 @@ function demoGetTransactions(filters = {}) {
             // Enrichir
             result = result.map(enrichTransaction);
 
+            // Filtre de recherche global
+            if (filters.search) {
+                const searchLower = filters.search.toLowerCase();
+                result = result.filter(t =>
+                    (t.reference_paiement && t.reference_paiement.toLowerCase().includes(searchLower)) ||
+                    (t.reservation_code && t.reservation_code.toLowerCase().includes(searchLower))
+                );
+            }
+
             // Tri par date
             result.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 

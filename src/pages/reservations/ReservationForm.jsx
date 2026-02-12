@@ -5,6 +5,7 @@ import {
     UserPlus,
     MapPin,
     ArrowRight,
+    ArrowLeft,
     Calendar,
     Clock,
     Users,
@@ -12,7 +13,12 @@ import {
     Calculator,
     Bus,
     Plane,
-    Search
+    Search,
+    Phone,
+    Mail,
+    CalendarX,
+    DollarSign,
+    X
 } from 'lucide-react';
 import { getVoyages } from '../../api/voyages.api';
 import { getClients, createClient, createReservation } from '../../api/reservations.api';
@@ -208,352 +214,333 @@ function ReservationForm() {
     }
 
     return (
-        <div className={styles.reservationForm}>
+        <div className={styles.enterprise_container}>
             {/* Header */}
-            <div className={styles.reservationForm__header}>
-                <h1 className={styles.reservationForm__title}>Nouvelle Réservation</h1>
-                <p className={styles.reservationForm__subtitle}>
-                    Créez une réservation pour un client
-                </p>
-            </div>
+            <header className={styles.form_header_pro}>
+                <div className={styles.header_main}>
+                    <div className={styles.navigation_row}>
+                        <button type="button" onClick={() => navigate('/reservations')} className={styles.back_link_pro}>
+                            <ArrowLeft size={16} />
+                            Retour au registre
+                        </button>
+                    </div>
+                    <div className={styles.greeting_row}>
+                        <h1 className={styles.form_title}>Nouvelle Réservation</h1>
+                        <div className={styles.status_badge_compact}>
+                            <span className={styles.status_dot}></span>
+                            <span className={styles.status_text}>Système d'émission Live</span>
+                        </div>
+                    </div>
+                    <p className={styles.form_subtitle}>Configurez les détails du billet et validez les informations passager</p>
+                </div>
+            </header>
 
-            <form onSubmit={handleSubmit} className={styles.reservationForm__form}>
+            <form onSubmit={handleSubmit} className={styles.form_main_pro}>
                 {/* Section Client */}
-                <div className={styles.reservationForm__section}>
-                    <div className={styles['reservationForm__section-header']}>
-                        <div className={styles['reservationForm__section-icon']}>
+                <div className={styles.section_card_pro}>
+                    <div className={styles.section_header_pro}>
+                        <div className={styles.section_icon_pro}>
                             <User size={18} />
                         </div>
-                        <h2 className={styles['reservationForm__section-title']}>
-                            Informations Client
-                        </h2>
+                        <h2>Identification du Passager</h2>
                     </div>
 
-                    {/* Client Type Toggle */}
-                    <div className={styles['reservationForm__client-toggle']}>
-                        <button
-                            type="button"
-                            className={`${styles['reservationForm__toggle-btn']} ${clientType === 'existing' ? styles['reservationForm__toggle-btn--active'] : ''}`}
-                            onClick={() => setClientType('existing')}
-                        >
-                            <User size={18} />
-                            Client existant
-                        </button>
-                        <button
-                            type="button"
-                            className={`${styles['reservationForm__toggle-btn']} ${clientType === 'new' ? styles['reservationForm__toggle-btn--active'] : ''}`}
-                            onClick={() => setClientType('new')}
-                        >
-                            <UserPlus size={18} />
-                            Nouveau client
-                        </button>
-                    </div>
-
-                    {clientType === 'existing' ? (
-                        <div className={styles.reservationForm__field}>
-                            <label className={`${styles.reservationForm__label} ${styles['reservationForm__label--required']}`}>
-                                Rechercher un client
-                            </label>
-                            <div style={{ position: 'relative' }}>
-                                <Search size={16} style={{ position: 'absolute', left: 12, top: 12, color: 'var(--text-tertiary)' }} />
-                                <input
-                                    type="text"
-                                    className={styles.reservationForm__input}
-                                    placeholder="Rechercher par nom, prénom ou téléphone..."
-                                    value={searchClient}
-                                    onChange={(e) => setSearchClient(e.target.value)}
-                                    style={{ paddingLeft: 36 }}
-                                />
-                            </div>
-                            <select
-                                className={`${styles.reservationForm__select} ${errors.client_id ? styles['reservationForm__select--error'] : ''}`}
-                                value={formData.client_id}
-                                onChange={(e) => handleChange('client_id', e.target.value)}
-                                size={5}
-                                style={{ height: 'auto', marginTop: 8 }}
+                    <div className={styles.section_body_pro}>
+                        {/* Client Type Toggle */}
+                        <div className={styles.client_toggle_pro}>
+                            <button
+                                type="button"
+                                className={`${styles.toggle_btn_pro} ${clientType === 'existing' ? styles.active : ''}`}
+                                onClick={() => setClientType('existing')}
                             >
-                                {filteredClients.map(client => (
-                                    <option key={client.id} value={client.id}>
-                                        {client.prenom} {client.nom} - {client.telephone}
-                                    </option>
-                                ))}
-                            </select>
-                            {errors.client_id && (
-                                <span className={styles.reservationForm__error}>{errors.client_id}</span>
-                            )}
+                                <Users size={18} />
+                                <span>Client Répertorié</span>
+                            </button>
+                            <button
+                                type="button"
+                                className={`${styles.toggle_btn_pro} ${clientType === 'new' ? styles.active : ''}`}
+                                onClick={() => setClientType('new')}
+                            >
+                                <UserPlus size={18} />
+                                <span>Nouveau Profil</span>
+                            </button>
                         </div>
-                    ) : (
-                        <>
-                            <div className={styles.reservationForm__row}>
-                                <div className={styles.reservationForm__field}>
-                                    <label className={`${styles.reservationForm__label} ${styles['reservationForm__label--required']}`}>
-                                        Nom
-                                    </label>
-                                    <input
-                                        type="text"
-                                        className={`${styles.reservationForm__input} ${errors.client_nom ? styles['reservationForm__input--error'] : ''}`}
-                                        placeholder="Nom de famille"
-                                        value={formData.client_nom}
-                                        onChange={(e) => handleChange('client_nom', e.target.value)}
-                                    />
-                                    {errors.client_nom && (
-                                        <span className={styles.reservationForm__error}>{errors.client_nom}</span>
-                                    )}
-                                </div>
-                                <div className={styles.reservationForm__field}>
-                                    <label className={`${styles.reservationForm__label} ${styles['reservationForm__label--required']}`}>
-                                        Prénom
-                                    </label>
-                                    <input
-                                        type="text"
-                                        className={`${styles.reservationForm__input} ${errors.client_prenom ? styles['reservationForm__input--error'] : ''}`}
-                                        placeholder="Prénom"
-                                        value={formData.client_prenom}
-                                        onChange={(e) => handleChange('client_prenom', e.target.value)}
-                                    />
-                                    {errors.client_prenom && (
-                                        <span className={styles.reservationForm__error}>{errors.client_prenom}</span>
-                                    )}
+
+                        {clientType === 'existing' ? (
+                            <div className={styles.input_grid_pro}>
+                                <div className={`${styles.field_pro} ${styles.full_width}`}>
+                                    <label>Sélectionner un passager</label>
+                                    <div className={styles.search_client_selection}>
+                                        <div className={styles.search_bar_pro}>
+                                            <Search className={styles.search_icon} size={16} />
+                                            <input
+                                                type="text"
+                                                placeholder="Filtrer par nom ou téléphone..."
+                                                value={searchClient}
+                                                onChange={(e) => setSearchClient(e.target.value)}
+                                                className={styles.search_input_inner}
+                                            />
+                                        </div>
+                                        <select
+                                            className={`${styles.pro_select_list} ${errors.client_id ? styles.error : ''}`}
+                                            value={formData.client_id}
+                                            onChange={(e) => handleChange('client_id', e.target.value)}
+                                            size={5}
+                                        >
+                                            {filteredClients.map(client => (
+                                                <option key={client.id} value={client.id}>
+                                                    {client.prenom} {client.nom} - {client.telephone}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    {errors.client_id && <span className={styles.error_text}>{errors.client_id}</span>}
                                 </div>
                             </div>
-                            <div className={styles.reservationForm__row}>
-                                <div className={styles.reservationForm__field}>
-                                    <label className={`${styles.reservationForm__label} ${styles['reservationForm__label--required']}`}>
-                                        Téléphone
-                                    </label>
-                                    <input
-                                        type="tel"
-                                        className={`${styles.reservationForm__input} ${errors.client_telephone ? styles['reservationForm__input--error'] : ''}`}
-                                        placeholder="+235 66 XX XX XX"
-                                        value={formData.client_telephone}
-                                        onChange={(e) => handleChange('client_telephone', e.target.value)}
-                                    />
-                                    {errors.client_telephone && (
-                                        <span className={styles.reservationForm__error}>{errors.client_telephone}</span>
-                                    )}
+                        ) : (
+                            <div className={styles.input_grid_pro}>
+                                <div className={styles.field_pro}>
+                                    <label className={styles.required}>Nom</label>
+                                    <div className={styles.enhanced_input_wrapper}>
+                                        <User className={styles.field_icon} size={16} />
+                                        <input
+                                            type="text"
+                                            className={`${styles.pro_input} ${errors.client_nom ? styles.error : ''}`}
+                                            placeholder="Nom de famille"
+                                            value={formData.client_nom}
+                                            onChange={(e) => handleChange('client_nom', e.target.value)}
+                                        />
+                                    </div>
+                                    {errors.client_nom && <span className={styles.error_text}>{errors.client_nom}</span>}
                                 </div>
-                                <div className={styles.reservationForm__field}>
-                                    <label className={styles.reservationForm__label}>
-                                        Email (optionnel)
-                                    </label>
-                                    <input
-                                        type="email"
-                                        className={styles.reservationForm__input}
-                                        placeholder="email@exemple.com"
-                                        value={formData.client_email}
-                                        onChange={(e) => handleChange('client_email', e.target.value)}
-                                    />
+                                <div className={styles.field_pro}>
+                                    <label className={styles.required}>Prénom</label>
+                                    <div className={styles.enhanced_input_wrapper}>
+                                        <User className={styles.field_icon} size={16} />
+                                        <input
+                                            type="text"
+                                            className={`${styles.pro_input} ${errors.client_prenom ? styles.error : ''}`}
+                                            placeholder="Prénom"
+                                            value={formData.client_prenom}
+                                            onChange={(e) => handleChange('client_prenom', e.target.value)}
+                                        />
+                                    </div>
+                                    {errors.client_prenom && <span className={styles.error_text}>{errors.client_prenom}</span>}
                                 </div>
-                            </div>
-                            <div className={styles.reservationForm__row}>
-                                <div className={styles.reservationForm__field}>
-                                    <label className={styles.reservationForm__label}>
-                                        Type de pièce
-                                    </label>
+                                <div className={styles.field_pro}>
+                                    <label className={styles.required}>Téléphone</label>
+                                    <div className={styles.enhanced_input_wrapper}>
+                                        <Phone className={styles.field_icon} size={16} />
+                                        <input
+                                            type="tel"
+                                            className={`${styles.pro_input} ${errors.client_telephone ? styles.error : ''}`}
+                                            placeholder="+242 XXX XX XX"
+                                            value={formData.client_telephone}
+                                            onChange={(e) => handleChange('client_telephone', e.target.value)}
+                                        />
+                                    </div>
+                                    {errors.client_telephone && <span className={styles.error_text}>{errors.client_telephone}</span>}
+                                </div>
+                                <div className={styles.field_pro}>
+                                    <label>Email (Optionnel)</label>
+                                    <div className={styles.enhanced_input_wrapper}>
+                                        <Mail className={styles.field_icon} size={16} />
+                                        <input
+                                            type="email"
+                                            className={styles.pro_input}
+                                            placeholder="passager@exemple.com"
+                                            value={formData.client_email}
+                                            onChange={(e) => handleChange('client_email', e.target.value)}
+                                        />
+                                    </div>
+                                </div>
+                                <div className={styles.field_pro}>
+                                    <label>Pièce d'identité</label>
                                     <select
-                                        className={styles.reservationForm__select}
+                                        className={styles.pro_select}
                                         value={formData.client_type_piece}
                                         onChange={(e) => handleChange('client_type_piece', e.target.value)}
                                     >
-                                        <option value="CNI">Carte Nationale d'Identité</option>
+                                        <option value="CNI">CNI</option>
                                         <option value="passeport">Passeport</option>
                                         <option value="permis">Permis de conduire</option>
                                     </select>
                                 </div>
-                                <div className={styles.reservationForm__field}>
-                                    <label className={styles.reservationForm__label}>
-                                        Numéro de pièce (optionnel)
-                                    </label>
+                                <div className={styles.field_pro}>
+                                    <label>Numéro de pièce</label>
                                     <input
                                         type="text"
-                                        className={styles.reservationForm__input}
-                                        placeholder="Numéro de la pièce"
+                                        className={styles.pro_input}
+                                        placeholder="Numéro du document"
                                         value={formData.client_numero_piece}
                                         onChange={(e) => handleChange('client_numero_piece', e.target.value)}
                                     />
                                 </div>
                             </div>
-                        </>
-                    )}
+                        )}
+                    </div>
                 </div>
 
                 {/* Section Voyage */}
-                <div className={styles.reservationForm__section}>
-                    <div className={styles['reservationForm__section-header']}>
-                        <div className={styles['reservationForm__section-icon']}>
+                <div className={styles.section_card_pro}>
+                    <div className={styles.section_header_pro}>
+                        <div className={`${styles.section_icon_pro} ${styles.icon_route}`}>
                             <MapPin size={18} />
                         </div>
-                        <h2 className={styles['reservationForm__section-title']}>
-                            Sélection du Voyage
-                        </h2>
+                        <h2>Sélection de l'Itinéraire</h2>
                     </div>
 
-                    {errors.voyage_id && (
-                        <span className={styles.reservationForm__error} style={{ marginBottom: 12, display: 'block' }}>
-                            {errors.voyage_id}
-                        </span>
-                    )}
+                    <div className={styles.section_body_pro}>
+                        {errors.voyage_id && <div className={styles.form_error_box}>{errors.voyage_id}</div>}
 
-                    <div className={styles['reservationForm__voyage-list']}>
-                        {voyages.length === 0 ? (
-                            <div className={styles['reservationForm__empty-voyages']}>
-                                Aucun voyage disponible
-                            </div>
-                        ) : voyages.map(voyage => (
-                            <div
-                                key={voyage.id}
-                                className={`
-                                    ${styles['reservationForm__voyage-card']}
-                                    ${selectedVoyage?.id === voyage.id ? styles['reservationForm__voyage-card--selected'] : ''}
-                                    ${voyage.places_disponibles <= 0 ? styles['reservationForm__voyage-card--disabled'] : ''}
-                                `}
-                                onClick={() => handleVoyageSelect(voyage)}
-                            >
-                                <div className={styles['reservationForm__voyage-route']}>
-                                    {voyage.type_transport === TRANSPORT_TYPES.PLANE ? (
-                                        <Plane size={16} />
-                                    ) : (
-                                        <Bus size={16} />
-                                    )}
-                                    <span>{voyage.ville_depart_nom}</span>
-                                    <ArrowRight size={16} className={styles['reservationForm__voyage-arrow']} />
-                                    <span>{voyage.ville_arrivee_nom}</span>
-                                    <span className={styles['reservationForm__voyage-price']}>
-                                        {formatCurrency(voyage.prix_unitaire)}
-                                    </span>
+                        <div className={styles.voyage_grid_pro}>
+                            {voyages.length === 0 ? (
+                                <div className={styles.empty_state_pro}>
+                                    <CalendarX size={40} />
+                                    <h3>Aucun voyage disponible</h3>
+                                    <p>Il n'y a pas de liaisons planifiées pour le moment.</p>
                                 </div>
-                                <div className={styles['reservationForm__voyage-meta']}>
-                                    <span className={styles['reservationForm__voyage-meta-item']}>
-                                        <Calendar size={14} />
-                                        {formatDate(voyage.date_depart)}
-                                    </span>
-                                    <span className={styles['reservationForm__voyage-meta-item']}>
-                                        <Clock size={14} />
-                                        {voyage.heure_depart}
-                                    </span>
-                                    <span className={styles['reservationForm__voyage-meta-item']}>
-                                        {voyage.numero_vol_bus}
-                                    </span>
-                                    <span className={`${styles['reservationForm__voyage-places']} ${getPlacesClass(voyage.places_disponibles)}`}>
-                                        {voyage.places_disponibles} places
-                                    </span>
+                            ) : voyages.map(voyage => (
+                                <div
+                                    key={voyage.id}
+                                    className={`${styles.voyage_card_pro} ${selectedVoyage?.id === voyage.id ? styles.selected : ''} ${voyage.places_disponibles <= 0 ? styles.disabled : ''}`}
+                                    onClick={() => handleVoyageSelect(voyage)}
+                                >
+                                    <div className={styles.voyage_header_pro}>
+                                        <span className={styles.transport_type}>
+                                            {voyage.type_transport === TRANSPORT_TYPES.PLANE ? <Plane size={14} /> : <Bus size={14} />}
+                                            {voyage.type_transport === TRANSPORT_TYPES.PLANE ? 'Vol' : 'Bus'}
+                                        </span>
+                                        <div className={styles.price_tag}>{formatCurrency(voyage.prix_unitaire)}</div>
+                                    </div>
+                                    <div className={styles.voyage_route_pro}>
+                                        <div className={styles.loc_step}>
+                                            <span className={styles.city}>{voyage.ville_depart_nom}</span>
+                                            <span className={styles.hour}>{voyage.heure_depart}</span>
+                                        </div>
+                                        <div className={styles.route_line}>
+                                            <ArrowRight size={14} />
+                                        </div>
+                                        <div className={styles.loc_step}>
+                                            <span className={styles.city}>{voyage.ville_arrivee_nom}</span>
+                                            <span className={styles.hour}>Terminus</span>
+                                        </div>
+                                    </div>
+                                    <div className={styles.voyage_footer_pro}>
+                                        <div className={styles.meta_item}>
+                                            <Calendar size={12} />
+                                            <span>{formatDate(voyage.date_depart)}</span>
+                                        </div>
+                                        <div className={`${styles.places_count_pro} ${voyage.places_disponibles < 5 ? styles.low : ''}`}>
+                                            {voyage.places_disponibles} places
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                        ))}
+                            ))}
+                        </div>
                     </div>
                 </div>
 
                 {/* Section Réservation */}
-                <div className={styles.reservationForm__section}>
-                    <div className={styles['reservationForm__section-header']}>
-                        <div className={styles['reservationForm__section-icon']}>
+                <div className={styles.section_card_pro}>
+                    <div className={styles.section_header_pro}>
+                        <div className={`${styles.section_icon_pro} ${styles.icon_payment}`}>
                             <CreditCard size={18} />
                         </div>
-                        <h2 className={styles['reservationForm__section-title']}>
-                            Détails de la Réservation
-                        </h2>
+                        <h2>Détails & Facturation</h2>
                     </div>
 
-                    <div className={styles.reservationForm__row}>
-                        <div className={styles.reservationForm__field}>
-                            <label className={`${styles.reservationForm__label} ${styles['reservationForm__label--required']}`}>
-                                Nombre de places
-                            </label>
-                            <input
-                                type="number"
-                                min="1"
-                                max={selectedVoyage?.places_disponibles || 10}
-                                className={`${styles.reservationForm__input} ${errors.nombre_places ? styles['reservationForm__input--error'] : ''}`}
-                                value={formData.nombre_places}
-                                onChange={(e) => handleChange('nombre_places', parseInt(e.target.value) || 1)}
-                            />
-                            {errors.nombre_places && (
-                                <span className={styles.reservationForm__error}>{errors.nombre_places}</span>
-                            )}
-                        </div>
-                        <div className={styles.reservationForm__field}>
-                            <label className={`${styles.reservationForm__label} ${styles['reservationForm__label--required']}`}>
-                                Mode de paiement
-                            </label>
-                            <select
-                                className={`${styles.reservationForm__select} ${errors.mode_paiement ? styles['reservationForm__select--error'] : ''}`}
-                                value={formData.mode_paiement}
-                                onChange={(e) => handleChange('mode_paiement', e.target.value)}
-                            >
-                                <option value="">Sélectionner...</option>
-                                <option value="especes">Espèces</option>
-                                <option value="mobile_money">Mobile Money</option>
-                                <option value="carte">Carte bancaire</option>
-                                <option value="virement">Virement</option>
-                            </select>
-                            {errors.mode_paiement && (
-                                <span className={styles.reservationForm__error}>{errors.mode_paiement}</span>
-                            )}
-                        </div>
-                    </div>
-
-                    <div className={styles.reservationForm__field}>
-                        <label className={styles.reservationForm__label}>
-                            Notes (optionnel)
-                        </label>
-                        <textarea
-                            className={styles.reservationForm__input}
-                            placeholder="Remarques sur la réservation..."
-                            value={formData.notes}
-                            onChange={(e) => handleChange('notes', e.target.value)}
-                            rows={3}
-                            style={{ resize: 'vertical' }}
-                        />
-                    </div>
-
-                    {/* Price Summary */}
-                    {selectedVoyage && (
-                        <div className={styles['reservationForm__price-summary']}>
-                            <div className={styles['reservationForm__price-header']}>
-                                <Calculator size={18} />
-                                Récapitulatif du montant
+                    <div className={styles.section_body_pro}>
+                        <div className={styles.input_grid_pro}>
+                            <div className={styles.field_pro}>
+                                <label className={styles.required}>Nombre de places</label>
+                                <div className={styles.enhanced_input_wrapper}>
+                                    <Users className={styles.field_icon} size={16} />
+                                    <input
+                                        type="number"
+                                        min="1"
+                                        max={selectedVoyage?.places_disponibles || 10}
+                                        className={`${styles.pro_input} ${errors.nombre_places ? styles.error : ''}`}
+                                        value={formData.nombre_places}
+                                        onChange={(e) => handleChange('nombre_places', parseInt(e.target.value) || 1)}
+                                    />
+                                </div>
+                                {errors.nombre_places && <span className={styles.error_text}>{errors.nombre_places}</span>}
                             </div>
-                            <div className={styles['reservationForm__price-rows']}>
-                                <div className={styles['reservationForm__price-row']}>
-                                    <span>Prix unitaire</span>
-                                    <span>{formatCurrency(selectedVoyage.prix_unitaire)}</span>
+                            <div className={styles.field_pro}>
+                                <label className={styles.required}>Mode de paiement</label>
+                                <div className={styles.enhanced_select_wrapper}>
+                                    <CreditCard className={styles.field_icon} size={16} />
+                                    <select
+                                        className={`${styles.pro_select} ${errors.mode_paiement ? styles.error : ''}`}
+                                        value={formData.mode_paiement}
+                                        onChange={(e) => handleChange('mode_paiement', e.target.value)}
+                                    >
+                                        <option value="">Sélectionner...</option>
+                                        <option value="especes">Espèces</option>
+                                        <option value="mobile_money">Mobile Money</option>
+                                        <option value="carte">Carte bancaire</option>
+                                        <option value="virement">Virement</option>
+                                    </select>
                                 </div>
-                                <div className={styles['reservationForm__price-row']}>
-                                    <span>Nombre de places</span>
-                                    <span>× {formData.nombre_places}</span>
-                                </div>
-                                <div className={`${styles['reservationForm__price-row']} ${styles['reservationForm__price-row--total']}`}>
-                                    <span>Total à payer</span>
-                                    <span>{formatCurrency(montantTotal)}</span>
-                                </div>
+                                {errors.mode_paiement && <span className={styles.error_text}>{errors.mode_paiement}</span>}
+                            </div>
+                            <div className={`${styles.field_pro} ${styles.full_width}`}>
+                                <label>Instructions particulières</label>
+                                <textarea
+                                    className={styles.pro_textarea}
+                                    placeholder="Bagages spéciaux, demandes particulières..."
+                                    value={formData.notes}
+                                    onChange={(e) => handleChange('notes', e.target.value)}
+                                    rows={2}
+                                />
                             </div>
                         </div>
-                    )}
+
+                        {selectedVoyage && (
+                            <div className={styles.pricing_summary_pro}>
+                                <div className={styles.pricing_header}>
+                                    <Calculator size={18} />
+                                    <span>Estimation du coût total</span>
+                                </div>
+                                <div className={styles.pricing_rows}>
+                                    <div className={styles.p_row}>
+                                        <span>Prix unitaire billet</span>
+                                        <span>{formatCurrency(selectedVoyage.prix_unitaire)}</span>
+                                    </div>
+                                    <div className={styles.p_row}>
+                                        <span>Nombre de passagers</span>
+                                        <span>× {formData.nombre_places}</span>
+                                    </div>
+                                    <div className={`${styles.p_row} ${styles.total}`}>
+                                        <span>Total à percevoir</span>
+                                        <span className={styles.total_value}>{formatCurrency(montantTotal)}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
                 </div>
 
                 {/* Actions */}
-                <div className={styles.reservationForm__actions}>
-                    <Button
+                <div className={styles.form_actions_pro}>
+                    <button
                         type="button"
-                        variant="secondary"
+                        className={styles.btn_cancel_pro}
                         onClick={() => navigate('/reservations')}
                     >
-                        Annuler
-                    </Button>
-                    <Button
+                        Abandonner
+                    </button>
+                    <button
                         type="submit"
-                        loading={submitting}
-                        disabled={!selectedVoyage}
+                        disabled={submitting || !selectedVoyage}
+                        className={styles.btn_submit_pro}
                     >
-                        Créer la réservation
-                    </Button>
+                        {submitting ? 'Emission en cours...' : 'Générer la Réservation'}
+                    </button>
                 </div>
 
-                {errors.submit && (
-                    <p className={styles.reservationForm__error} style={{ textAlign: 'center' }}>
-                        {errors.submit}
-                    </p>
-                )}
+                {errors.submit && <div className={styles.final_error_box}>{errors.submit}</div>}
             </form>
         </div>
     );

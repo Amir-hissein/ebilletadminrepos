@@ -12,13 +12,15 @@ import {
     Plane,
     Calendar,
     Clock,
-    Building2
+    Building2,
+    Trash2
 } from 'lucide-react';
-import { getVoyages, getVoyagesStats, getVilles } from '../../api/voyages.api';
+import { getVoyages, getVoyagesStats, getVilles, deleteVoyage } from '../../api/voyages.api';
 import { TRIP_STATUS_LABELS, TRANSPORT_TYPES_LABELS } from '../../utils/constants';
 import { formatDate, formatCurrency } from '../../utils/formatters';
 import Button from '../../components/common/Button';
 import Badge from '../../components/common/Badge';
+import ConfirmModal from '../../components/common/ConfirmModal/ConfirmModal';
 import styles from './VoyagesList.module.css';
 
 function VoyagesList() {
@@ -31,9 +33,11 @@ function VoyagesList() {
         search: '',
         statut: '',
         ville_depart_id: '',
+        ville_arrivee_id: '',
         type_transport: '',
         date_depart: ''
     });
+    const [deleteModal, setDeleteModal] = useState({ open: false, voyageId: null, voyageRef: '' });
 
     useEffect(() => {
         loadData();
@@ -44,7 +48,7 @@ function VoyagesList() {
         try {
             const [voyagesResult, statsResult, villesResult] = await Promise.all([
                 getVoyages(filters),
-                getVoyagesStats(),
+                getVoyagesStats(filters),
                 getVilles({ actif: true })
             ]);
             setVoyages(voyagesResult.data);
@@ -55,6 +59,24 @@ function VoyagesList() {
         } finally {
             setLoading(false);
         }
+    };
+
+    const confirmDelete = async () => {
+        try {
+            await deleteVoyage(deleteModal.voyageId);
+            setDeleteModal({ open: false, voyageId: null, voyageRef: '' });
+            loadData();
+        } catch (error) {
+            console.error('Erreur suppression voyage:', error);
+        }
+    };
+
+    const handleDeleteClick = (voyage) => {
+        setDeleteModal({
+            open: true,
+            voyageId: voyage.id,
+            voyageRef: voyage.numero_vol_bus || `#${voyage.id}`
+        });
     };
 
     const handleFilterChange = (key, value) => {
@@ -83,19 +105,27 @@ function VoyagesList() {
     };
 
     return (
-        <div className={styles.voyages}>
-            {/* Header */}
-            <div className={styles.voyages__header}>
-                <div>
-                    <h1 className={styles.voyages__title}>Gestion des Voyages</h1>
-                    <p className={styles.voyages__subtitle}>
-                        Gérez tous les voyages et trajets de la plateforme
-                    </p>
+        <div className={styles.enterprise_container}>
+            <header className={styles.voyages_header_pro}>
+                <div className={styles.header_main}>
+                    <div className={styles.greeting_row}>
+                        <h1>Gestion des Voyages</h1>
+                        <div className={styles.status_badge_compact}>
+                            <span className={styles.status_dot}></span>
+                            <span className={styles.status_text}>Trafic en Temps Réel</span>
+                        </div>
+                    </div>
+                    <span className={styles.date_display}>
+                        {new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+                    </span>
                 </div>
-                <Button icon={Plus} onClick={() => navigate('/voyages/new')}>
-                    Nouveau voyage
-                </Button>
-            </div>
+                <div className={styles.global_actions}>
+                    <button className={styles.btn_primary_pro} onClick={() => navigate('/voyages/new')}>
+                        <Plus size={16} />
+                        <span>Planifier un Voyage</span>
+                    </button>
+                </div>
+            </header>
 
             {/* Stats Bar */}
             <div className={styles.voyages__stats}>
@@ -104,64 +134,74 @@ function VoyagesList() {
                     <span className={styles['voyages__stat-label']}>Total</span>
                 </div>
                 <div className={styles.voyages__stat}>
-                    <Badge variant="primary" size="sm">{stats.planifie || 0}</Badge>
+                    <span className={styles['voyages__stat-value']}>{stats.planifie || 0}</span>
                     <span className={styles['voyages__stat-label']}>Planifiés</span>
                 </div>
                 <div className={styles.voyages__stat}>
-                    <Badge variant="warning" size="sm">{stats.en_cours || 0}</Badge>
+                    <span className={styles['voyages__stat-value']}>{stats.en_cours || 0}</span>
                     <span className={styles['voyages__stat-label']}>En cours</span>
                 </div>
                 <div className={styles.voyages__stat}>
-                    <Badge variant="success" size="sm">{stats.termine || 0}</Badge>
+                    <span className={styles['voyages__stat-value']}>{stats.termine || 0}</span>
                     <span className={styles['voyages__stat-label']}>Terminés</span>
                 </div>
                 <div className={styles.voyages__stat}>
-                    <Badge variant="danger" size="sm">{stats.annule || 0}</Badge>
+                    <span className={styles['voyages__stat-value']}>{stats.annule || 0}</span>
                     <span className={styles['voyages__stat-label']}>Annulés</span>
                 </div>
             </div>
 
-            {/* Filters */}
-            <div className={styles.voyages__filters}>
-                <div className={styles.voyages__search}>
-                    <Search size={18} className={styles['voyages__search-icon']} />
+            <div className={styles.voyages_filters_pro}>
+                <div className={styles.search_group_pro}>
+                    <Search size={18} className={styles.search_icon_pro} />
                     <input
                         type="text"
-                        placeholder="Rechercher par numéro, ville..."
-                        className={styles['voyages__search-input']}
+                        placeholder="Rechercher par trajet, ville ou numéro..."
+                        className={styles.search_input_pro}
                         value={filters.search}
                         onChange={(e) => handleFilterChange('search', e.target.value)}
                     />
                 </div>
 
                 <select
-                    className={styles['voyages__filter-select']}
+                    className={styles.select_compact}
                     value={filters.statut}
                     onChange={(e) => handleFilterChange('statut', e.target.value)}
                 >
-                    <option value="">Tous les statuts</option>
+                    <option value="">Statuts</option>
                     {Object.entries(TRIP_STATUS_LABELS).map(([value, label]) => (
                         <option key={value} value={value}>{label}</option>
                     ))}
                 </select>
 
                 <select
-                    className={styles['voyages__filter-select']}
+                    className={styles.select_compact}
                     value={filters.ville_depart_id}
                     onChange={(e) => handleFilterChange('ville_depart_id', e.target.value)}
                 >
-                    <option value="">Toutes les villes de départ</option>
+                    <option value="">Départ</option>
                     {villes.map(ville => (
                         <option key={ville.id} value={ville.id}>{ville.nom}</option>
                     ))}
                 </select>
 
                 <select
-                    className={styles['voyages__filter-select']}
+                    className={styles.select_compact}
+                    value={filters.ville_arrivee_id}
+                    onChange={(e) => handleFilterChange('ville_arrivee_id', e.target.value)}
+                >
+                    <option value="">Arrivée</option>
+                    {villes.map(ville => (
+                        <option key={ville.id} value={ville.id}>{ville.nom}</option>
+                    ))}
+                </select>
+
+                <select
+                    className={styles.select_compact}
                     value={filters.type_transport}
                     onChange={(e) => handleFilterChange('type_transport', e.target.value)}
                 >
-                    <option value="">Tous les transports</option>
+                    <option value="">Transports</option>
                     {Object.entries(TRANSPORT_TYPES_LABELS).map(([value, label]) => (
                         <option key={value} value={value}>{label}</option>
                     ))}
@@ -169,131 +209,140 @@ function VoyagesList() {
 
                 <input
                     type="date"
-                    className={styles['voyages__filter-date']}
+                    className={styles.date_input_compact}
                     value={filters.date_depart}
                     onChange={(e) => handleFilterChange('date_depart', e.target.value)}
                 />
             </div>
 
             {/* Table */}
-            <div className={styles['voyages__table-container']}>
-                {loading ? (
-                    <div className={styles.voyages__loading}>
-                        Chargement des voyages...
-                    </div>
-                ) : voyages.length === 0 ? (
-                    <div className={styles.voyages__empty}>
-                        <div className={styles['voyages__empty-icon']}>
-                            <MapPin size={32} />
+            <div className={styles.voyages_table_panel_pro}>
+                <div className={styles.table_scroll_viewport_pro}>
+                    {loading ? (
+                        <div className={styles.voyages__loading}>
+                            Chargement des flux logistiques...
                         </div>
-                        <p>Aucun voyage trouvé</p>
-                    </div>
-                ) : (
-                    <table className={styles.voyages__table}>
-                        <thead>
-                            <tr>
-                                <th>Trajet</th>
-                                <th>Transport</th>
-                                <th>Départ</th>
-                                <th>Places</th>
-                                <th>Prix</th>
-                                <th>Agence</th>
-                                <th>Statut</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {voyages.map(voyage => (
-                                <tr key={voyage.id}>
-                                    <td>
-                                        <div className={styles.voyages__route}>
-                                            <span className={`${styles['voyages__route-ville']} truncate`} title={voyage.ville_depart_nom}>
-                                                {voyage.ville_depart_nom}
-                                            </span>
-                                            <ArrowRight size={16} className={styles['voyages__route-arrow']} />
-                                            <span className={`${styles['voyages__route-ville']} truncate`} title={voyage.ville_arrivee_nom}>
-                                                {voyage.ville_arrivee_nom}
-                                            </span>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <span className={`${styles.voyages__transport} ${styles[`voyages__transport--${voyage.type_transport}`]}`}>
-                                            <TransportIcon type={voyage.type_transport} />
-                                            {TRANSPORT_TYPES_LABELS[voyage.type_transport]}
-                                            {voyage.numero_vol_bus && ` (${voyage.numero_vol_bus})`}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <div className={styles.voyages__datetime}>
-                                            <span className={styles.voyages__date}>
-                                                <Calendar size={12} style={{ marginRight: '4px' }} />
-                                                {formatDate(voyage.date_depart)}
-                                            </span>
-                                            <span className={styles.voyages__time}>
-                                                <Clock size={12} style={{ marginRight: '4px' }} />
-                                                {voyage.heure_depart}
-                                            </span>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div className={styles.voyages__places}>
-                                            <span className={styles['voyages__places-text']}>
-                                                {voyage.places_disponibles}/{voyage.places_totales}
-                                            </span>
-                                            <div className={styles['voyages__places-bar']}>
-                                                <div
-                                                    className={`${styles['voyages__places-fill']} ${getPlacesFillClass(voyage.places_disponibles, voyage.places_totales)}`}
-                                                    style={{ width: `${(voyage.places_disponibles / voyage.places_totales) * 100}%` }}
-                                                />
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <span className={styles.voyages__price}>
-                                            {formatCurrency(voyage.prix_unitaire)}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <span className={styles.voyages__agence}>
-                                            <Building2 size={14} />
-                                            {voyage.agence?.nom || 'N/A'}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <Badge variant={getStatusVariant(voyage.statut)}>
-                                            {TRIP_STATUS_LABELS[voyage.statut]}
-                                        </Badge>
-                                    </td>
-                                    <td>
-                                        <div className={styles.voyages__actions}>
-                                            <button
-                                                className={styles['voyages__action-btn']}
-                                                onClick={() => navigate(`/voyages/${voyage.id}`)}
-                                                title="Voir détails"
-                                            >
-                                                <Eye size={16} />
-                                            </button>
-                                            <button
-                                                className={styles['voyages__action-btn']}
-                                                onClick={() => navigate(`/voyages/${voyage.id}/edit`)}
-                                                title="Modifier"
-                                            >
-                                                <Edit size={16} />
-                                            </button>
-                                            <button
-                                                className={styles['voyages__action-btn']}
-                                                title="Plus d'options"
-                                            >
-                                                <MoreVertical size={16} />
-                                            </button>
-                                        </div>
-                                    </td>
+                    ) : voyages.length === 0 ? (
+                        <div className={styles.empty_state_container_pro}>
+                            <div className={styles.empty_state_icon_pro}>
+                                <Search size={40} />
+                            </div>
+                            <h3>Aucun trajet trouvé</h3>
+                            <p>Nous n'avons trouvé aucun voyage correspondant à "<strong>{filters.search || 'votre recherche'}</strong>".</p>
+                            <button
+                                className={styles.reset_filters_btn_pro}
+                                onClick={() => setFilters({ search: '', statut: '', ville_depart_id: '', type_transport: '', date_depart: '' })}
+                            >
+                                Réinitialiser les flux
+                            </button>
+                        </div>
+                    ) : (
+                        <table className={styles.voyages_table_pro}>
+                            <thead>
+                                <tr>
+                                    <th>Trajet Logistique</th>
+                                    <th>Type & Ref</th>
+                                    <th>Départ Prévu</th>
+                                    <th>Capacité</th>
+                                    <th>Tarification</th>
+                                    <th>Opérateur</th>
+                                    <th>État</th>
+                                    <th>Actions</th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                )}
+                            </thead>
+                            <tbody>
+                                {voyages.map(voyage => (
+                                    <tr key={voyage.id}>
+                                        <td>
+                                            <div className={styles.voyage_route_cell}>
+                                                <span className="truncate">{voyage.ville_depart_nom}</span>
+                                                <ArrowRight size={14} className={styles.route_arrow_eye} />
+                                                <span className="truncate">{voyage.ville_arrivee_nom}</span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div className={styles.agency_meta_info}>
+                                                <span className={styles.mono_text} style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                                    <TransportIcon type={voyage.type_transport} />
+                                                    {TRANSPORT_TYPES_LABELS[voyage.type_transport]}
+                                                </span>
+                                                <span className={styles.agency_address_sub}>{voyage.numero_vol_bus || 'S/N'}</span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div className={styles.agency_meta_info}>
+                                                <span className={styles.mono_text}>{formatDate(voyage.date_depart)}</span>
+                                                <span className={styles.agency_address_sub}>{voyage.heure_depart}</span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div className={styles.agency_meta_info}>
+                                                <span className={styles.mono_text}>{voyage.places_disponibles}/{voyage.places_totales}</span>
+                                                <div className={styles['voyages__places-bar']} style={{ marginTop: '4px' }}>
+                                                    <div
+                                                        className={`${styles['voyages__places-fill']} ${getPlacesFillClass(voyage.places_disponibles, voyage.places_totales)}`}
+                                                        style={{ width: `${(voyage.places_disponibles / voyage.places_totales) * 100}%` }}
+                                                    />
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span className={styles.price_cell_pro}>
+                                                {formatCurrency(voyage.prix_unitaire)}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span className={styles.agency_address_sub}>
+                                                {voyage.agence?.nom || 'N/A'}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div className={styles[`status_pill_${getStatusVariant(voyage.statut)}`]}>
+                                                {TRIP_STATUS_LABELS[voyage.statut]}
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div className={styles.voyage_actions_pro}>
+                                                <button
+                                                    className={styles.action_btn_pro}
+                                                    onClick={() => navigate(`/voyages/${voyage.id}`)}
+                                                    title="Voir détails"
+                                                >
+                                                    <Eye size={16} />
+                                                </button>
+                                                <button
+                                                    className={styles.action_btn_pro}
+                                                    onClick={() => navigate(`/voyages/${voyage.id}/edit`)}
+                                                    title="Modifier"
+                                                >
+                                                    <Edit size={16} />
+                                                </button>
+                                                <button
+                                                    className={styles.action_btn_pro}
+                                                    onClick={() => handleDeleteClick(voyage)}
+                                                    title="Supprimer"
+                                                    style={{ color: 'var(--danger-500)' }}
+                                                >
+                                                    <Trash2 size={16} />
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    )}
+                </div>
             </div>
+
+            <ConfirmModal
+                isOpen={deleteModal.open}
+                onClose={() => setDeleteModal({ open: false, voyageId: null, voyageRef: '' })}
+                onConfirm={confirmDelete}
+                title="Confirmer la suppression"
+                message={`Êtes-vous sûr de vouloir supprimer définitivement le voyage "${deleteModal.voyageRef}" ? Cette action est irréversible.`}
+                confirmLabel="Supprimer définitivement"
+            />
         </div>
     );
 }

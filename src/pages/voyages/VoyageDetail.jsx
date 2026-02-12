@@ -3,15 +3,16 @@ import { useParams, useNavigate } from 'react-router-dom';
 import {
     ArrowLeft, Calendar, Clock, MapPin,
     Bus, Plane, Users, CreditCard,
-    ChevronRight, MoreVertical, Edit,
+    ChevronRight, Trash2, Edit,
     Ticket, Building2, TrendingUp, Info
 } from 'lucide-react';
-import { getVoyageById } from '../../api/voyages.api';
+import { getVoyageById, deleteVoyage } from '../../api/voyages.api';
 import { getReservations } from '../../api/reservations.api';
 import { formatDate, formatCurrency } from '../../utils/formatters';
 import { TRANSPORT_TYPES_LABELS, TRIP_STATUS_LABELS } from '../../utils/constants';
 import Button from '../../components/common/Button';
 import Badge from '../../components/common/Badge';
+import ConfirmModal from '../../components/common/ConfirmModal/ConfirmModal';
 import styles from './VoyageDetail.module.css';
 
 const VoyageDetail = () => {
@@ -21,6 +22,8 @@ const VoyageDetail = () => {
     const [reservations, setReservations] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
     useEffect(() => {
         const loadData = async () => {
@@ -82,6 +85,16 @@ const VoyageDetail = () => {
     const totalRevenue = reservations.reduce((sum, res) => sum + (res.montant_total || 0), 0);
     const confirmedReservations = reservations.filter(r => r.statut === 'confirmee').length;
 
+    const handleDelete = async () => {
+        try {
+            await deleteVoyage(id);
+            navigate('/voyages');
+        } catch (error) {
+            console.error('Erreur suppression voyage:', error);
+            alert('Impossible de supprimer le voyage.');
+        }
+    };
+
     return (
         <div className={`fade-in ${styles.container}`}>
             {/* Header */}
@@ -104,9 +117,25 @@ const VoyageDetail = () => {
                     <Button icon={Edit} variant="outline" onClick={() => navigate(`/voyages/${id}/edit`)}>
                         Modifier
                     </Button>
-                    <Button icon={MoreVertical} variant="outline" />
+                    <Button
+                        icon={Trash2}
+                        variant="outline"
+                        style={{ color: 'var(--danger-500)', borderColor: 'var(--danger-100)' }}
+                        onClick={() => setIsDeleteModalOpen(true)}
+                    >
+                        Supprimer
+                    </Button>
                 </div>
             </div>
+
+            <ConfirmModal
+                isOpen={isDeleteModalOpen}
+                onClose={() => setIsDeleteModalOpen(false)}
+                onConfirm={handleDelete}
+                title="Confirmer la suppression"
+                message={`Êtes-vous sûr de vouloir supprimer définitivement le voyage #${id} ? Cette action est irréversible.`}
+                confirmLabel="Supprimer définitivement"
+            />
 
             <div className={styles.grid}>
                 <div className={styles.main}>

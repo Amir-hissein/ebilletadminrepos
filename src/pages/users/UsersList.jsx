@@ -22,6 +22,7 @@ import { ROLES, ROLE_NAMES, USER_STATUS_LABELS } from '../../utils/constants';
 import { formatDate, getInitials } from '../../utils/formatters';
 import Button from '../../components/common/Button';
 import Badge from '../../components/common/Badge';
+import ConfirmModal from '../../components/common/ConfirmModal/ConfirmModal';
 import styles from './UsersList.module.css';
 
 function UsersList() {
@@ -35,6 +36,7 @@ function UsersList() {
         statut: '',
         role_id: ''
     });
+    const [deleteModal, setDeleteModal] = useState({ open: false, userId: null, userName: '' });
 
     // Stats calculées
     const stats = {
@@ -87,16 +89,19 @@ function UsersList() {
         setOpenMenuId(null);
     };
 
-    const handleDelete = async (user) => {
-        if (window.confirm(`Êtes-vous sûr de vouloir supprimer l'utilisateur "${user.prenom} ${user.nom}" ?`)) {
-            try {
-                await deleteUser(user.id);
-                loadUsers();
-            } catch (error) {
-                console.error('Erreur suppression:', error);
-            }
-        }
+    const handleDeleteClick = (user) => {
+        setDeleteModal({ open: true, userId: user.id, userName: `${user.prenom} ${user.nom}` });
         setOpenMenuId(null);
+    };
+
+    const confirmDelete = async () => {
+        try {
+            await deleteUser(deleteModal.userId);
+            setDeleteModal({ open: false, userId: null, userName: '' });
+            loadUsers();
+        } catch (error) {
+            console.error('Erreur suppression:', error);
+        }
     };
 
     const handleSearchChange = (e) => {
@@ -130,21 +135,27 @@ function UsersList() {
     };
 
     return (
-        <div className={styles.users}>
-            {/* Header */}
-            <div className={styles.users__header}>
-                <div className={styles['users__header-content']}>
-                    <h1 className={styles.users__title}>Gestion des Utilisateurs</h1>
-                    <p className={styles.users__subtitle}>
-                        Gérez les utilisateurs de la plateforme, leurs rôles et accès
-                    </p>
+        <div className={styles.enterprise_container}>
+            <header className={styles.users_header_pro}>
+                <div className={styles.header_main}>
+                    <div className={styles.greeting_row}>
+                        <h1>Gestion des Utilisateurs</h1>
+                        <div className={styles.status_badge_compact}>
+                            <span className={styles.status_dot}></span>
+                            <span className={styles.status_text}>Système de Gestion Actif</span>
+                        </div>
+                    </div>
+                    <span className={styles.date_display}>
+                        {new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+                    </span>
                 </div>
-                <div className={styles['users__header-content']}>
-                    <Button icon={Plus} onClick={() => navigate('/users/new')}>
-                        Nouvel utilisateur
-                    </Button>
+                <div className={styles.global_actions}>
+                    <button className={styles.btn_primary_pro} onClick={() => navigate('/users/new')}>
+                        <Plus size={16} />
+                        <span>Nouvel Utilisateur</span>
+                    </button>
                 </div>
-            </div>
+            </header>
 
             {/* Stats Bar */}
             <div className={styles.users__stats}>
@@ -195,65 +206,73 @@ function UsersList() {
                 </div>
             </div>
 
-            {/* Filters */}
-            <div className={styles.users__filters}>
-                <div className={styles.users__search}>
-                    <Search size={18} className={styles['users__search-icon']} />
+            <div className={styles.users_filters_pro}>
+                <div className={styles.search_group_pro}>
+                    <Search size={18} className={styles.search_icon_pro} />
                     <input
                         type="text"
-                        placeholder="Rechercher un utilisateur..."
-                        className={styles['users__search-input']}
+                        placeholder="Rechercher un utilisateur, email ou rôle..."
+                        className={styles.search_input_pro}
                         value={filters.search}
                         onChange={handleSearchChange}
                     />
                 </div>
 
-                <select
-                    className={styles['users__filter-select']}
-                    value={filters.statut}
-                    onChange={handleStatusChange}
-                >
-                    <option value="">Tous les statuts</option>
-                    {Object.entries(USER_STATUS_LABELS).map(([value, label]) => (
-                        <option key={value} value={value}>{label}</option>
-                    ))}
-                </select>
+                <div className={styles.filter_group_pro}>
+                    <select
+                        className={styles.select_compact}
+                        value={filters.statut}
+                        onChange={handleStatusChange}
+                    >
+                        <option value="">Tous les statuts</option>
+                        {Object.entries(USER_STATUS_LABELS).map(([value, label]) => (
+                            <option key={value} value={value}>{label}</option>
+                        ))}
+                    </select>
 
-                <select
-                    className={styles['users__filter-select']}
-                    value={filters.role_id}
-                    onChange={handleRoleChange}
-                >
-                    <option value="">Tous les rôles</option>
-                    {Object.entries(ROLE_NAMES).map(([value, label]) => (
-                        <option key={value} value={value}>{label}</option>
-                    ))}
-                </select>
+                    <select
+                        className={styles.select_compact}
+                        value={filters.role_id}
+                        onChange={handleRoleChange}
+                    >
+                        <option value="">Tous les rôles</option>
+                        {Object.entries(ROLE_NAMES).map(([value, label]) => (
+                            <option key={value} value={value}>{label}</option>
+                        ))}
+                    </select>
+                </div>
             </div>
 
             {/* Table */}
-            <div className={styles['users__table-container']}>
-                {loading ? (
-                    <div className={styles.users__loading}>
-                        Chargement des utilisateurs...
-                    </div>
-                ) : users.length === 0 ? (
-                    <div className={styles.users__empty}>
-                        <div className={styles['users__empty-icon']}>
-                            <UsersIcon size={32} />
+            <div className={styles.users_table_panel_pro}>
+                <div className={styles.table_scroll_viewport_pro}>
+                    {loading ? (
+                        <div className={styles.users__loading}>
+                            Chargement des utilisateurs...
                         </div>
-                        <p>Aucun utilisateur trouvé</p>
-                    </div>
-                ) : (
-                    <div className={styles['users__table-wrapper']}>
-                        <table className={styles.users__table}>
+                    ) : users.length === 0 ? (
+                        <div className={styles.empty_state_container_pro}>
+                            <div className={styles.empty_state_icon_pro}>
+                                <Search size={40} />
+                            </div>
+                            <h3>Aucun utilisateur trouvé</h3>
+                            <p>Nous n'avons trouvé aucun profil correspondant à "<strong>{filters.search || 'votre recherche'}</strong>".</p>
+                            <button
+                                className={styles.reset_filters_btn_pro}
+                                onClick={() => setFilters({ search: '', statut: '', role_id: '' })}
+                            >
+                                Réinitialiser les paramètres
+                            </button>
+                        </div>
+                    ) : (
+                        <table className={styles.users_table_pro}>
                             <thead>
                                 <tr>
-                                    <th>Utilisateur</th>
-                                    <th>Rôle</th>
-                                    <th>Agence</th>
-                                    <th>Statut</th>
-                                    <th>Dernière connexion</th>
+                                    <th>Identité Utilisateur</th>
+                                    <th>Rôle Système</th>
+                                    <th>Agence / Affiliation</th>
+                                    <th>État Compte</th>
+                                    <th>Dernière Activité</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
@@ -261,20 +280,20 @@ function UsersList() {
                                 {users.map(user => (
                                     <tr key={user.id}>
                                         <td>
-                                            <div className={styles['users__name-cell']}>
+                                            <div className={styles.user_identity_cell}>
                                                 <div className={styles.users__avatar}>
                                                     {getInitials(user.prenom, user.nom)}
                                                 </div>
-                                                <div className={styles['users__name-info']} style={{ overflow: 'hidden' }}>
-                                                    <span className={`${styles.users__name} truncate`} title={`${user.prenom} ${user.nom}`}>
+                                                <div className={styles.user_meta_info}>
+                                                    <span className={styles.user_full_name}>
                                                         {user.prenom} {user.nom}
                                                     </span>
-                                                    <span className={`${styles.users__email} truncate`} title={user.email}>{user.email}</span>
+                                                    <span className={styles.mono_email}>{user.email}</span>
                                                 </div>
                                             </div>
                                         </td>
                                         <td>
-                                            <span className={`${styles['users__role-badge']} ${getRoleBadgeClass(user.role_id)}`}>
+                                            <span className={`${styles.role_badge_pro} ${getRoleBadgeClass(user.role_id)}`}>
                                                 {ROLE_NAMES[user.role_id]}
                                             </span>
                                         </td>
@@ -289,67 +308,53 @@ function UsersList() {
                                             )}
                                         </td>
                                         <td>
-                                            <Badge variant={getStatusVariant(user.statut)} dot>
+                                            <div className={user.statut === 'actif' ? styles.status_pill_success : styles.status_pill_pending}>
                                                 {USER_STATUS_LABELS[user.statut]}
-                                            </Badge>
+                                            </div>
                                         </td>
                                         <td>
-                                            {user.derniere_connexion ? (
-                                                <span className={styles.users__agency}>
-                                                    <Clock size={14} />
-                                                    {formatDate(user.derniere_connexion)}
-                                                </span>
-                                            ) : (
-                                                <span style={{ color: 'var(--text-tertiary)' }}>Jamais</span>
-                                            )}
+                                            <div className={styles.last_login_cell}>
+                                                {user.derniere_connexion ? (
+                                                    <>
+                                                        <Clock size={14} className={styles.clock_icon} />
+                                                        <span className={styles.mono_text}>{formatDate(user.derniere_connexion)}</span>
+                                                    </>
+                                                ) : (
+                                                    <span className={styles.never_text}>Jamais connecté</span>
+                                                )}
+                                            </div>
                                         </td>
                                         <td>
-                                            <div className={styles.users__actions}>
+                                            <div className={styles.user_actions_pro}>
                                                 <button
-                                                    className={`${styles['users__action-btn']} ${styles['users__action-btn--view']}`}
+                                                    className={styles.action_btn_pro}
                                                     onClick={() => navigate(`/users/${user.id}`)}
                                                     title="Voir détails"
                                                 >
                                                     <Eye size={16} />
                                                 </button>
                                                 <button
-                                                    className={`${styles['users__action-btn']} ${styles['users__action-btn--edit']}`}
+                                                    className={styles.action_btn_pro}
                                                     onClick={() => navigate(`/users/${user.id}/edit`)}
                                                     title="Modifier"
                                                 >
                                                     <Edit size={16} />
                                                 </button>
-                                                <div className={styles['users__dropdown-wrapper']} ref={openMenuId === user.id ? menuRef : null}>
+                                                <div className={styles.relative} ref={openMenuId === user.id ? menuRef : null}>
                                                     <button
-                                                        className={`${styles['users__action-btn']} ${styles['users__action-btn--more']} ${openMenuId === user.id ? styles['users__action-btn--active'] : ''}`}
+                                                        className={`${styles.action_btn_pro} ${openMenuId === user.id ? styles.active : ''}`}
                                                         onClick={() => toggleMenu(user.id)}
-                                                        title="Plus d'options"
                                                     >
                                                         <MoreVertical size={16} />
                                                     </button>
                                                     {openMenuId === user.id && (
-                                                        <div className={styles['users__dropdown']}>
-                                                            <button
-                                                                className={styles['users__dropdown-item']}
-                                                                onClick={() => handleStatusToggle(user)}
-                                                            >
-                                                                {user.statut === 'actif' ? (
-                                                                    <>
-                                                                        <XCircle size={16} />
-                                                                        Suspendre
-                                                                    </>
-                                                                ) : (
-                                                                    <>
-                                                                        <CheckCircle size={16} />
-                                                                        Activer
-                                                                    </>
-                                                                )}
+                                                        <div className={styles.dropdown_pro}>
+                                                            <button onClick={() => handleStatusToggle(user)}>
+                                                                {user.statut === 'actif' ? <XCircle size={14} /> : <CheckCircle size={14} />}
+                                                                {user.statut === 'actif' ? 'Suspendre' : 'Activer'}
                                                             </button>
-                                                            <button
-                                                                className={`${styles['users__dropdown-item']} ${styles['users__dropdown-item--danger']}`}
-                                                                onClick={() => handleDelete(user)}
-                                                            >
-                                                                <Trash2 size={16} />
+                                                            <button className={styles.danger} onClick={() => handleDeleteClick(user)}>
+                                                                <Trash2 size={14} />
                                                                 Supprimer
                                                             </button>
                                                         </div>
@@ -361,9 +366,18 @@ function UsersList() {
                                 ))}
                             </tbody>
                         </table>
-                    </div>
-                )}
+                    )}
+                </div>
             </div>
+
+            <ConfirmModal
+                isOpen={deleteModal.open}
+                onClose={() => setDeleteModal({ open: false, userId: null, userName: '' })}
+                onConfirm={confirmDelete}
+                title="Supprimer l'utilisateur"
+                message={`Êtes-vous sûr de vouloir supprimer définitivement l'utilisateur "${deleteModal.userName}" ? Cette action révoquera tous ses accès.`}
+                confirmLabel="Supprimer définitivement"
+            />
         </div>
     );
 }

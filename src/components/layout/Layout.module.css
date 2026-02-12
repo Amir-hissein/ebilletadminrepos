@@ -74,6 +74,7 @@
     }
 
     .layout__main {
-        padding: var(--spacing-md);
+        padding: 0.75rem;
+        /* Compact padding for mobile */
     }
 }

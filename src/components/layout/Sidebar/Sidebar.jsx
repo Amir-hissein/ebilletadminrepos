@@ -111,8 +111,13 @@ function Sidebar({ collapsed, onToggle, pendingActions = 0, mobileOpen }) {
         <aside className={`${styles.sidebar} ${collapsed ? styles['sidebar--collapsed'] : ''} ${mobileOpen ? styles['sidebar--open'] : ''}`}>
             {/* Logo */}
             <div className={styles.sidebar__logo}>
-                <span className={styles['sidebar__logo-title']}>ebillet</span>
-                <span className={styles['sidebar__logo-subtitle']}>Administration</span>
+                <div className={styles.sidebar__logo_icon}>eb</div>
+                {!collapsed && (
+                    <div className={styles.sidebar__logo_text}>
+                        <span className={styles['sidebar__logo-title']}>ebillet</span>
+                        <span className={styles['sidebar__logo-subtitle']}>Administration</span>
+                    </div>
+                )}
             </div>
 
             {/* Navigation */}
@@ -124,6 +129,9 @@ function Sidebar({ collapsed, onToggle, pendingActions = 0, mobileOpen }) {
                         <NavLink
                             key={link.to}
                             to={link.to}
+                            onClick={() => {
+                                if (window.innerWidth <= 768) onToggle();
+                            }}
                             data-tooltip={link.label}
                             className={({ isActive }) =>
                                 `${styles.sidebar__link} ${isActive ? styles['sidebar__link--active'] : ''}`
@@ -142,24 +150,26 @@ function Sidebar({ collapsed, onToggle, pendingActions = 0, mobileOpen }) {
             {/* User Section */}
             <div className={styles.sidebar__user}>
                 <div className={styles['sidebar__user-info']}>
-                    <div className={styles['sidebar__user-avatar']}>
+                    <div className={styles['sidebar__user-avatar']} data-tooltip={collapsed ? `${user?.prenom} ${user?.nom}` : null}>
                         {userInitials}
                     </div>
-                    <div className={styles['sidebar__user-details']}>
-                        <div className={styles['sidebar__user-name']}>
-                            {user?.prenom} {user?.nom}
+                    {!collapsed && (
+                        <div className={styles['sidebar__user-details']}>
+                            <div className={styles['sidebar__user-name']}>
+                                {user?.prenom} {user?.nom}
+                            </div>
+                            <div className={styles['sidebar__user-role']}>{roleName}</div>
                         </div>
-                        <div className={styles['sidebar__user-role']}>{roleName}</div>
-                    </div>
+                    )}
                 </div>
 
                 <button
-                    className={styles.sidebar__link}
+                    className={styles.logout_button}
                     onClick={handleLogout}
-                    style={{ marginTop: '0.5rem' }}
+                    data-tooltip={collapsed ? "Déconnexion" : null}
                 >
-                    <LogOut size={20} />
-                    <span className={styles['sidebar__link-text']}>Déconnexion</span>
+                    <LogOut size={16} />
+                    {!collapsed && <span>Déconnexion</span>}
                 </button>
             </div>
 
