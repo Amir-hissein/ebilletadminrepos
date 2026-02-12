@@ -163,3 +163,53 @@ body {
 .animate-spin {
     animation: spin 1s linear infinite;
 }
+
+
+/* ===========================================
+   ULTRA-COMPACT GLOBAL OVERRIDES
+   =========================================== */
+
+/* Dense Tables for Enterprise Feel */
+table th,
+table td {
+    padding: 0.75rem 1rem !important;
+    /* Force compact padding */
+    font-size: 0.8125rem !important;
+    /* 13px */
+}
+
+table th {
+    font-size: 0.7rem !important;
+    /* 11px Caps */
+    letter-spacing: 0.06em !important;
+}
+
+/* Compact Cards */
+.card,
+[class*="card"] {
+    padding: 1rem !important;
+    /* Reduce specific card padding */
+}
+
+/* Compact Inputs & Buttons Global */
+input,
+select,
+textarea,
+button {
+    font-size: 0.875rem !important;
+}
+
+/* Mobile Specific Ultra-Density */
+@media (max-width: 768px) {
+    :root {
+        --spacing-md: 0.5rem;
+        /* 8px on mobile */
+        --spacing-lg: 0.75rem;
+        /* 12px on mobile */
+    }
+
+    table th,
+    table td {
+        padding: 0.5rem 0.5rem !important;
+    }
+}
