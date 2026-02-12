@@ -148,13 +148,36 @@
   --info-100: rgba(59, 130, 246, 0.2);
 }
 
-/* Mobile Spacing Overrides */
+/* Mobile Spacing Overrides - App-Like Feel */
 @media (max-width: 768px) {
   :root {
-    --spacing-lg: 1.25rem;
-    --spacing-xl: 1.5rem;
-    --spacing-2xl: 2rem;
-    --font-size-base: 0.95rem;
-    /* Slightly smaller base text on mobile */
+    /* Compact Spacing */
+    --spacing-xs: 0.15rem;
+    --spacing-sm: 0.35rem;
+    --spacing-md: 0.75rem;
+    /* Was 1rem */
+    --spacing-lg: 1rem;
+    /* Was 1.5rem */
+    --spacing-xl: 1.25rem;
+    /* Was 2rem */
+    --spacing-2xl: 1.5rem;
+    /* Was 3rem */
+
+    /* Compact Fonts */
+    --font-size-xs: 0.7rem;
+    --font-size-sm: 0.8rem;
+    --font-size-base: 0.9rem;
+    /* Smaller base text */
+    --font-size-lg: 1rem;
+    --font-size-xl: 1.15rem;
+    --font-size-2xl: 1.25rem;
+    --font-size-3xl: 1.5rem;
+    --font-size-4xl: 1.75rem;
+
+    /* Mobile Layout */
+    --header-height: 56px;
+    /* Smaller header */
+    --sidebar-width: 0px;
+    /* Hidden by default */
   }
 }

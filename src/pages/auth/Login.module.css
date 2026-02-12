@@ -223,11 +223,66 @@
 
 /* Responsive */
 @media (max-width: 768px) {
+    .login {
+        padding: 0;
+        background: var(--primary-800);
+        /* Simplified background */
+    }
+
+    .login::before,
+    .login::after {
+        display: none;
+        /* Remove distractions */
+    }
+
     .login__branding {
         display: none;
     }
 
+    .login__container {
+        padding: 0;
+        height: 100vh;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .login__form-section {
+        padding: 1rem;
+        width: 100%;
+        max-width: 100%;
+    }
+
     .login__card {
         max-width: 100%;
+        width: 100%;
+        box-shadow: none;
+        /* Flat design for app feel */
+        border-radius: 0;
+        background: transparent;
+        padding: 0;
+    }
+
+    .login__header {
+        margin-bottom: 2rem;
+    }
+
+    .login__title {
+        color: white;
+        /* Text needs to be white on dark bg */
+    }
+
+    .login__subtitle {
+        color: rgba(255, 255, 255, 0.7);
+    }
+
+    /* Input overrides for dark mode feel */
+    .login__form input {
+        background: rgba(255, 255, 255, 0.1) !important;
+        border: 1px solid rgba(255, 255, 255, 0.2) !important;
+        color: white !important;
+    }
+
+    .login__form label {
+        color: rgba(255, 255, 255, 0.9);
     }
 }
